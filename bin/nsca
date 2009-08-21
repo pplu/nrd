@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+
+use NSCA2::Daemon;
+
+NSCA2::Daemon->run(conf_file => '/etc/nsca2.conf');
