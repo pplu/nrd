@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Getopt::Std;
+use IO::Socket;
+use NSCA2::Packet;
+
+my %opts;
+getopt('c', \%opts);
+my $conf_file = $opts{'c'} || '/etc/send_nsca2.cfg';
+my ($host, $port, $encrypt, $encrypt_key);
+my $conf = {};
+{
+  local *CONF;
+  open CONF, "<", $conf_file or next;
+  while (my $line = <CONF>){
+    chomp $line;
+    next if ($line =~ m/^\s*#/);
+    next if ($line =~ m/^\s*$/);
+    $line =~ s/^\s*(\w+)\s+(.{1,}?)\s*$/$conf->{$1} = $2;/ge;
+  }
+}
+
+$host = $conf->{'host'} || 'localhost';
+$port = $conf->{'port'} || 5667;
+$encrypt = $conf->{'encrypt'} || 'none';
+$encrypt_key = $conf->{'encrypt_key'} || '';
+
+my ($class);
+if (lc($encrypt) eq 'none'){
+  require NSCA2::Serialize;
+  $class = 'NSCA2::Serialize';
+} else {
+  require NSCA2::SerializeCrypt;
+  $class = 'NSCA2::SerializeCrypt';
+}
+
+#
+#use Data::Dumper;
+#print Dumper($conf_file, $class,$host, $port, $encrypt, $encrypt_key);
+#
+my $serializer = $class->new({
+   'encrypt' => $conf->{'encrypt'},
+   'encrypt_key' => $conf->{'encrypt_key'}
+});
+
+my $sock = IO::Socket::INET->new(PeerAddr => $host,
+                                 PeerPort => $port,
+                                 Proto    => 'tcp',
+                                 ) || die "Can't connect [$!]";
+
+my $packer = NSCA2::Packet->new();
+if (lc($encrypt) ne 'none'){
+  print $sock $packer->pack($serializer->iv());
+}
+
+while (my $line = <STDIN>){
+  chomp $line;
+  my $r = {
+    'time' => time(),
+    %{ $serializer->from_line($line) }
+  };
+  print $sock $packer->pack($serializer->freeze($r));
+}
+
+close $sock;
+exit;
