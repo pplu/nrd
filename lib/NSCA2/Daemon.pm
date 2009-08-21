@@ -49,13 +49,9 @@ sub process_request {
       $self->log(0, "Couldn't unserialize a request: $@");
       next;
     }
-    ##if (ref($request) eq 'ARRAY'){
-    ##  foreach my $result (@$request){
-    ##     $self->process_result($result);
-    ##  }
-    ##} else {
+    
     $self->process_result($request);
-    ##}
+    
     eval {
       $request = $packer->unpack(*STDIN);
     };
@@ -144,9 +140,6 @@ sub post_configure_hook {
 
 
 #################### main pod documentation begin ###################
-## Below is the stub of documentation for your module. 
-## You better edit it!
-
 
 =head1 NAME
 
@@ -154,17 +147,9 @@ NSCA2::Daemon - NSCA version 2
 
 =head1 SYNOPSIS
 
-  use NSCA2::Daemon;
-  blah blah blah
-
 
 =head1 DESCRIPTION
 
-Stub documentation for this module was created by ExtUtils::ModuleMaker.
-It looks like the author of the extension was negligent enough
-to leave the stub unedited.
-
-Blah blah blah.
 
 
 =head1 USAGE
@@ -194,7 +179,6 @@ it and/or modify it under the same terms as Perl itself.
 
 The full text of the license can be found in the
 LICENSE file included with this module.
-
 
 =head1 SEE ALSO
 
