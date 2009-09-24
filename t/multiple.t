@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 # DESCRIPTION:
-#       Test sending more than one passive result to nsca
+#       Test sending more than one passive result to nrd
 #
 # COPYRIGHT:
 #       Copyright (C) 2007 Altinity Limited

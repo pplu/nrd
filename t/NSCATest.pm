@@ -27,11 +27,11 @@ sub start {
 	my ($self, $mode) = @_;
 	$mode ||= "--server_type=Single";
 
-	printf "Starting nsca with $mode\n";
-	system("perl -I blib/lib bin/nsca --conf_file=t/nsca_".$self->config.".cfg $mode");
+	printf "Starting nrd with $mode\n";
+	system("perl -I blib/lib bin/nrd --conf_file=t/nrd_".$self->config.".cfg $mode");
 
 	sleep 2;	# Let daemon start
-	open F, "/tmp/nsca.pid" or die "No pid file found";
+	open F, "/tmp/nrd.pid" or die "No pid file found";
 	chop(my $pid = <F>);
 	close F;
 	$self->pid($pid);
@@ -43,10 +43,10 @@ sub start {
 
 sub stop {
 	my $self = shift;
-	print "Stopping nsca: ".$self->pid.$/;
+	print "Stopping nrd: ".$self->pid.$/;
 	kill "TERM", $self->pid;
 	$self->pid(undef);
-	unlink "/tmp/nagios.cmd", "/tmp/nsca.dump";
+	unlink "/tmp/nrd.cmd", "/tmp/nrd.dump";
 	sleep 2;	# Let daemon die
 }
 
@@ -61,12 +61,12 @@ sub send {
 sub send_cmd {
 	my ($self) = @_;
 	my $timeout = $self->timeout || 2;
-	return "bin/send_nsca -c t/send_" . $self->config . ".cfg";
+	return "bin/send_nrd -c t/send_" . $self->config . ".cfg";
 }
 
 sub read_cmd {
 	my ($self, $file) = @_;
-	$file ||= "/tmp/nsca.dump";
+	$file ||= "/tmp/nrd.dump";
 	my $fh = IO::File->new($file) or die "Can't open $file";
 	$self->process_data($fh);
 }

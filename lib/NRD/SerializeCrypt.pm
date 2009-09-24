@@ -1,6 +1,6 @@
-package NSCA2::SerializeCrypt;
+package NRD::SerializeCrypt;
 
-use base 'NSCA2::Serialize';
+use base 'NRD::Serialize';
 
 sub new {
   my ($class, $options) = @_;

@@ -5,13 +5,13 @@
 use Test::More tests => 5;
 
 BEGIN {
-  use_ok( 'NSCA2::Daemon' );
-  use_ok( 'NSCA2::Serialize' );  
-  use_ok( 'NSCA2::SerializeCrypt' ); 
-  use_ok( 'NSCA2::Packet' );
+  use_ok( 'NRD::Daemon' );
+  use_ok( 'NRD::Serialize' );  
+  use_ok( 'NRD::SerializeCrypt' ); 
+  use_ok( 'NRD::Packet' );
 }
 
-my $object = NSCA2::Daemon->new ();
-isa_ok ($object, 'NSCA2::Daemon');
+my $object = NRD::Daemon->new ();
+isa_ok ($object, 'NRD::Daemon');
 
 

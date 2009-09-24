@@ -4,11 +4,11 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    NAME         => 'NSCA2::Daemon',
-    VERSION_FROM => 'lib/NSCA2/Daemon.pm', # finds \$VERSION
+    NAME         => 'NRD::Daemon',
+    VERSION_FROM => 'lib/NRD/Daemon.pm', # finds \$VERSION
     AUTHOR       => 'Jose Luis Martinez (jlmartinez@capside.com)',
-    ABSTRACT     => 'NSCA version 2',
-    EXE_FILES    => [ 'bin/send_nsca', 'bin/nsca' ],
+    ABSTRACT     => 'Nagios Result Distributor',
+    EXE_FILES    => [ 'bin/send_nrd', 'bin/nrd' ],
     PREREQ_PM    => {
                      'Test::Simple' => 0.44,
 		     'Net::Server' => 0,
