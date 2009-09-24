@@ -14,24 +14,12 @@ use base qw/Net::Server::MultiType/;
 sub process_request {
   my $self = shift;
   my $config = $self->{'server'};
-  my ($iv,$class);
+  my ($iv);
   
   $self->log(4, 'Process Request start');
-  if (lc($config->{'encrypt'}) eq 'none'){
-    $self->log(4, 'Expecting unencrypted client');
-    require NSCA2::Serialize;
-    $class = 'NSCA2::Serialize';
-  } else {
-    $self->log(4, 'Expected encrypted client');
-    require NSCA2::SerializeCrypt;
-    $class = 'NSCA2::SerializeCrypt';
-  }
+  my $serializer = $self->{'oSerializer'}; 
 
   my $packer = NSCA2::Packet->new();
-  my $serializer = $class->new({
-     'encrypt' => $config->{'encrypt'},
-     'encrypt_key' => $config->{'encrypt_key'}
-  });
 
   if (lc($config->{'encrypt'}) ne 'none'){
     my $iv = $packer->unpack(*STDIN);
@@ -134,6 +122,30 @@ sub post_configure_hook {
   die "No encryption_key defined in config" if (not defined $config->{'encrypt_key'});
 
   $self->log(0, "Using encryption: $config->{'encrypt'}");
+
+  my $class;
+  if (lc($config->{'encrypt'}) eq 'none'){
+    $self->log(4, 'Configuring for unencrypted clients');
+    require NSCA2::Serialize;
+    $class = 'NSCA2::Serialize';
+  } else {
+    $self->log(4, "Configuring for $config->{'encrypt'} encrypted Clients");
+    require NSCA2::SerializeCrypt;
+    $class = 'NSCA2::SerializeCrypt';
+  }
+  eval {
+    my $serializer = $class->new({
+       'encrypt' => $config->{'encrypt'},
+       'encrypt_key' => $config->{'encrypt_key'}
+    });
+
+    $self->{'oSerializer'} = $serializer;
+  };
+  if ($@) {
+    $self->log(0, "Error loading the serializer. You probably don't have the appropiate Crypt:: module installed:\n$@");
+    $self->log(0, "Aborting server start");
+    die "\n"; 
+  }
 
   return 1;
 }
