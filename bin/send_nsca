@@ -24,7 +24,7 @@ my $conf = {};
 }
 
 $host = $conf->{'host'} || 'localhost';
-$port = $conf->{'port'} || 5667;
+$port = $conf->{'port'} || 5669;
 $encrypt = $conf->{'encrypt'} || 'none';
 $encrypt_key = $conf->{'encrypt_key'} || '';
 
