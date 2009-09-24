@@ -8,6 +8,7 @@ WriteMakefile(
     VERSION_FROM => 'lib/NSCA2/Daemon.pm', # finds \$VERSION
     AUTHOR       => 'Jose Luis Martinez (jlmartinez@capside.com)',
     ABSTRACT     => 'NSCA version 2',
+    EXE_FILES    => [ 'bin/send_nsca', 'bin/nsca' ],
     PREREQ_PM    => {
                      'Test::Simple' => 0.44,
 		     'Net::Server' => 0,
