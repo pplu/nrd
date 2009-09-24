@@ -3,10 +3,10 @@ use strict;
 use warnings;
 
 use Test::More;
-use NSCA2::Packet;
-use NSCA2::Serialize;
+use NRD::Packet;
+use NRD::Serialize;
 
-my $packet = NSCA2::Packet->new();
+my $packet = NRD::Packet->new();
 my $temp_file = "/tmp/nsca2_test.tmp";
 my $message = 'message';
 open TEMP, ">", $temp_file or die $!;
@@ -24,7 +24,7 @@ my $data = [
         ];
 plan tests => scalar(@$data);
 
-my $ser = NSCA2::Serialize->new({'encrypt' => 'none'});
+my $ser = NRD::Serialize->new({'encrypt' => 'none'});
 foreach my $d (@$data){
     print TEMP $packet->pack($ser->freeze($d));
 }

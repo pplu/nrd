@@ -1,4 +1,4 @@
-package NSCA2::Serialize;
+package NRD::Serialize;
 
 use strict;
 use warnings;

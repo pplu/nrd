@@ -1,19 +1,19 @@
 #!/usr/bin/perl
 
 use Test::More;
-use NSCA2::Serialize;
-use NSCA2::SerializeCrypt;
+use NRD::Serialize;
+use NRD::SerializeCrypt;
 
 use Data::Dumper;
 
 plan tests => 2;
 
-my $un = NSCA2::Serialize->new({'encrypt' => 'none' });
-my $s = NSCA2::SerializeCrypt->new({'encrypt' => 'Blowfish', 'encrypt_key' => 'xxxx' });
+my $un = NRD::Serialize->new({'encrypt' => 'none' });
+my $s = NRD::SerializeCrypt->new({'encrypt' => 'Blowfish', 'encrypt_key' => 'xxxx' });
 
 #diag('will use IV ' . $s->{'iv'} . ' length ' . length($s->{'iv'}));
 
-my $uns = NSCA2::SerializeCrypt->new({'encrypt' => 'Blowfish', 'encrypt_key' => 'xxxx', 'iv' => $s->{'iv'} });
+my $uns = NRD::SerializeCrypt->new({'encrypt' => 'Blowfish', 'encrypt_key' => 'xxxx', 'iv' => $s->{'iv'} });
 
 my $r = {'hostname' => 'this is a string'};
 my $no_crypt = $un->freeze($r);

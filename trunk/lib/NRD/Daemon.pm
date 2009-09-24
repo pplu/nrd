@@ -1,10 +1,10 @@
-package NSCA2::Daemon;
+package NRD::Daemon;
 
 use warnings;
 use strict;
 use POSIX;
 use Data::Dumper;
-use NSCA2::Packet;
+use NRD::Packet;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -19,7 +19,7 @@ sub process_request {
   $self->log(4, 'Process Request start');
   my $serializer = $self->{'oSerializer'}; 
 
-  my $packer = NSCA2::Packet->new();
+  my $packer = NRD::Packet->new();
 
   if (lc($config->{'encrypt'}) ne 'none'){
     my $iv = $packer->unpack(*STDIN);
@@ -126,12 +126,12 @@ sub post_configure_hook {
   my $class;
   if (lc($config->{'encrypt'}) eq 'none'){
     $self->log(4, 'Configuring for unencrypted clients');
-    require NSCA2::Serialize;
-    $class = 'NSCA2::Serialize';
+    require NRD::Serialize;
+    $class = 'NRD::Serialize';
   } else {
     $self->log(4, "Configuring for $config->{'encrypt'} encrypted Clients");
-    require NSCA2::SerializeCrypt;
-    $class = 'NSCA2::SerializeCrypt';
+    require NRD::SerializeCrypt;
+    $class = 'NRD::SerializeCrypt';
   }
   eval {
     my $serializer = $class->new({
@@ -155,7 +155,7 @@ sub post_configure_hook {
 
 =head1 NAME
 
-NSCA2::Daemon - NSCA version 2
+NRD::Daemon - NRD Nagios Result Distributor
 
 =head1 SYNOPSIS
 

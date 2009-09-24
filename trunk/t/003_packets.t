@@ -3,11 +3,11 @@ use strict;
 use warnings;
 
 use Test::More;
-use NSCA2::Packet;
+use NRD::Packet;
 
 plan tests => 7;
 
-my $packet = NSCA2::Packet->new();
+my $packet = NRD::Packet->new();
 my $temp_file = "/tmp/nsca2_test.tmp";
 my $message = 'message';
 open TEMP, ">", $temp_file or die $!;

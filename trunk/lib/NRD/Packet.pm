@@ -1,4 +1,4 @@
-package NSCA2::Packet;
+package NRD::Packet;
 
 use strict;
 use warnings;
