@@ -18,7 +18,7 @@ use Test::More;
 use Clone qw(clone);
 use Parallel::Forker;
 
-my $iterations = 200;
+my $iterations = 3;
 my $timeout = 8;
 
 plan tests => 12;
