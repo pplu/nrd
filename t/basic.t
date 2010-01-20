@@ -28,6 +28,9 @@ my $data = [
 	["host-robin", "service with a :)", 2, "Critical? Alert! Alert!"],
 	["host-batman", "another service", 3, "Unknown - the only way to travel"],
 	["long_output", "service1", 0, 'x' x 10240 ], #10K of plugin output
+	['x' x 1000, 0, 'Host check with big hostname'],
+	['x' x 1000, 'service OK', 0, 'Service check with big hostname'],
+#	['long_svc_name', 'x' x 1000, 0, 'Service check with big service name'],
 	];
 
 foreach my $config ('none', 'encrypt'){
