@@ -2,9 +2,11 @@ package NRD::Daemon;
 
 use warnings;
 use strict;
+
 use POSIX;
 use Data::Dumper;
 use NRD::Packet;
+use NRD::Serialize;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -14,36 +16,44 @@ use base qw/Net::Server::MultiType/;
 sub process_request {
   my $self = shift;
   my $config = $self->{'server'};
-  my ($iv);
   
   $self->log(4, 'Process Request start');
   my $serializer = $self->{'oSerializer'}; 
+  $self->log(4, "Serializer $self->{'oSerializer'}");
 
   my $packer = NRD::Packet->new();
 
-  if (lc($config->{'encrypt'}) ne 'none'){
-    my $iv = $packer->unpack(*STDIN);
-    $self->log(4, 'Got IV: ' . Dumper($iv));
-    $serializer->iv($iv);
+  my $request;
+
+  if ($serializer->needs_helo){
+    my $helo = $packer->unpack(*STDIN);
+    $self->log(4, 'Got HELO: ' . Dumper($helo));
+    $serializer->helo($helo);
   }
 
-  my $request = $packer->unpack(*STDIN);
+  $request = $packer->unpack(*STDIN);
   while ($request){
-    #$self->log(4, "Got Data: " . Dumper($request));
+    $self->log(4, "Got Data: " . Dumper($request));
     eval {
-      $request = $serializer->unfreeze($request);
+      eval {
+        $request = $serializer->unfreeze($request);
+      };
+      if ($@){
+        die "Couldn't unserialize a request: $@";
+      }
+    
+      $self->log(4, "After unfreeze: " . Dumper($request));
+      $self->process_result($request);
+
+      # Done processing the request.
+      $request = undef;
+      eval {
+         # The unpack method croaks if the connection is closed
+         $request = $packer->unpack(*STDIN);
+      }
     };
     if ($@){
-      $self->log(0, "Couldn't unserialize a request: $@");
-      next;
-    }
-    
-    $self->process_result($request);
-    
-    eval {
-      $request = $packer->unpack(*STDIN);
-    };
-    if ($@) {
+      $self->log(2, "Couldn't process request $@");
       $request = undef;
     }
   }
@@ -51,9 +61,8 @@ sub process_request {
 
 sub process_result {
   my ($self, $result) = @_;
+  die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
 
-  die "Unexpected result format" if (not ref($result) eq 'HASH');
-  
   my $config = $self->{'server'};
   my $nagios_str;
   if ( defined $result->{svc_description} ) {
@@ -106,6 +115,9 @@ sub options {
   $prop->{'encrypt_key'} ||= undef;
   $template->{'encrypt_key'} = \ $prop->{'encrypt_key'};
 
+  $prop->{'encrypt_type'} ||= undef;
+  $template->{'encrypt_type'} = \ $prop->{'encrypt_type'};
+
   $prop->{'alternate_dump_file'} ||= undef;
   $template->{'alternate_dump_file'} = \ $prop->{'alternate_dump_file'};
 
@@ -119,26 +131,13 @@ sub post_configure_hook {
   die "No nagios_cmd specified" if (not defined $config->{'nagios_cmd'});
   #die "Cannot find $config->{'nagios_cmd'}"
   die "No encryption defined in config" if (not defined $config->{'encrypt'});
-  die "No encryption_key defined in config" if (not defined $config->{'encrypt_key'});
+  die "No encrypt_type defined in config" if (not defined $config->{'encrypt_type'});
+  die "No encrypt_key defined in config" if (not defined $config->{'encrypt_key'});
 
   $self->log(0, "Using encryption: $config->{'encrypt'}");
 
-  my $class;
-  if (lc($config->{'encrypt'}) eq 'none'){
-    $self->log(4, 'Configuring for unencrypted clients');
-    require NRD::Serialize;
-    $class = 'NRD::Serialize';
-  } else {
-    $self->log(4, "Configuring for $config->{'encrypt'} encrypted Clients");
-    require NRD::SerializeCrypt;
-    $class = 'NRD::SerializeCrypt';
-  }
   eval {
-    my $serializer = $class->new({
-       'encrypt' => $config->{'encrypt'},
-       'encrypt_key' => $config->{'encrypt_key'}
-    });
-
+    my $serializer = NRD::Serialize->new(lc($config->{'encrypt'}),$config);
     $self->{'oSerializer'} = $serializer;
   };
   if ($@) {

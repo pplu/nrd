@@ -5,7 +5,8 @@ etc/nsca2.conf
 lib/NRD/Daemon.pm
 lib/NRD/Packet.pm
 lib/NRD/Serialize.pm
-lib/NRD/SerializeCrypt.pm
+lib/NRD/Serialize/none.pm
+lib/NRD/Serialize/crypt.pm
 LICENSE
 Makefile.PL
 MANIFEST
