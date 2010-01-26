@@ -3,6 +3,8 @@ package NRD::Packet;
 use strict;
 use warnings;
 
+use Carp;
+
 #length needs to count bytes. not characters
 use bytes;
 
@@ -22,9 +24,9 @@ sub pack {
 
 sub unpack {
    my ($self, $fd) = @_;
-   read($fd, my $bytes, 4) == 4 or die "Can't read header";
+   read($fd, my $bytes, 4) == 4 or croak "Can't read packet header";
    $bytes = unpack("N", $bytes);
-   read($fd, my $buffer, $bytes) == $bytes or die "Didn't recieve whole packet";
+   read($fd, my $buffer, $bytes) == $bytes or croak "Didn't recieve whole packet";
    return $buffer;
 }
 
