@@ -109,8 +109,8 @@ sub options {
   $prop->{'nagios_cmd'} ||= undef;
   $template->{'nagios_cmd'} = \ $prop->{'nagios_cmd'};
 
-  $prop->{'encrypt'} ||= undef;
-  $template->{'encrypt'} = \ $prop->{'encrypt'};
+  $prop->{'serializer'} ||= undef;
+  $template->{'serializer'} = \ $prop->{'serializer'};
 
   $prop->{'encrypt_key'} ||= undef;
   $template->{'encrypt_key'} = \ $prop->{'encrypt_key'};
@@ -130,18 +130,18 @@ sub post_configure_hook {
 
   die "No nagios_cmd specified" if (not defined $config->{'nagios_cmd'});
   #die "Cannot find $config->{'nagios_cmd'}"
-  die "No encryption defined in config" if (not defined $config->{'encrypt'});
-  die "No encrypt_type defined in config" if (not defined $config->{'encrypt_type'});
-  die "No encrypt_key defined in config" if (not defined $config->{'encrypt_key'});
+  die "No serializer defined in config" if (not defined $config->{'serializer'});
+  #die "No encrypt_type defined in config" if (not defined $config->{'encrypt_type'});
+  #die "No encrypt_key defined in config" if (not defined $config->{'encrypt_key'});
 
-  $self->log(0, "Using encryption: $config->{'encrypt'}");
+  $self->log(0, "Using serializer: $config->{'serializer'}");
 
   eval {
-    my $serializer = NRD::Serialize->new(lc($config->{'encrypt'}),$config);
+    my $serializer = NRD::Serialize->new(lc($config->{'serializer'}),$config);
     $self->{'oSerializer'} = $serializer;
   };
   if ($@) {
-    $self->log(0, "Error loading the serializer. You probably don't have the appropiate Crypt:: module installed:\n$@");
+    $self->log(0, "Error loading the serializer. $@");
     $self->log(0, "Aborting server start");
     die "\n"; 
   }
