@@ -56,7 +56,7 @@ pid_file    /tmp/nrd.pid
 #allow       .+\.(net|com)
 #allow       domain\.com
 #deny        a.+
-cidr_allow  127.0.0.0/8
+#cidr_allow  127.0.0.0/8
 #cidr_allow  192.0.2.0/24
 #cidr_deny   192.0.2.4/30
 
@@ -72,7 +72,7 @@ port        5669
 ### reverse lookups ?
 # reverse_lookups off
 
-nagios_cmd /tmp/nagios
+nagios_cmd /usr/local/nagios/var/rw/nagios.cmd
 alternate_dump_file /tmp/nrd.dump
 
 serializer crypt
