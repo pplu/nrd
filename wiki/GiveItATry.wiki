@@ -20,7 +20,7 @@ cd nrd
 {{{
 apt-get install libnet-server-perl libnet-cidr-perl libcrypt-cbc-perl
 }}}
- - Install the encryption you will use (you can get a list with *aptitude search libcrypt.*-perl*)
+ - Install the encryption you will use (you can get a list with `aptitude search libcrypt.*-perl`)
 {{{
 apt-get install libcrypt-blowfish-perl
 }}}
