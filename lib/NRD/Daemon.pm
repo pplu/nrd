@@ -23,15 +23,24 @@ sub process_request {
 
   my $packer = NRD::Packet->new();
 
-  my $request;
+  my $request = undef;
 
   if ($serializer->needs_helo){
-    my $helo = $packer->unpack(*STDIN);
-    $self->log(4, 'Got HELO: ' . Dumper($helo));
-    $serializer->helo($helo);
+    eval {
+      my $helo = $packer->unpack(*STDIN);
+      $self->log(4, 'Got HELO: ' . Dumper($helo));
+      $serializer->helo($helo);
+    };
+    if ($@){
+      $self->log(2, "Couldn't process helo: $@");
+    }
   }
-
-  $request = $packer->unpack(*STDIN);
+  eval {
+    $request = $packer->unpack(*STDIN);
+  };
+  if ($@){
+    $self->log(2, "Couldn't process packet: $@");
+  }
   while ($request){
     $self->log(4, "Got Data: " . Dumper($request));
     eval {
