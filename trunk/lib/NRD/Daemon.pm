@@ -146,7 +146,7 @@ sub post_configure_hook {
   $self->log(0, "Using serializer: $config->{'serializer'}");
 
   eval {
-    my $serializer = NRD::Serialize->new(lc($config->{'serializer'}),$config);
+    my $serializer = NRD::Serialize->instance_of(lc($config->{'serializer'}),$config);
     $self->{'oSerializer'} = $serializer;
   };
   if ($@) {

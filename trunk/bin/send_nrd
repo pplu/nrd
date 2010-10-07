@@ -35,7 +35,7 @@ $conf->{'encrypt_key'}  ||= '';
 #use Data::Dumper;
 #print Dumper($conf, $host, $port);
 #
-my $serializer = NRD::Serialize->new(lc($conf->{'serializer'}), $conf);
+my $serializer = NRD::Serialize->instance_of(lc($conf->{'serializer'}), $conf);
 
 my $sock = IO::Socket::INET->new(PeerAddr => $host,
                                  PeerPort => $port,
