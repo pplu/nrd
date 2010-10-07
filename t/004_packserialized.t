@@ -24,7 +24,7 @@ my $data = [
         ];
 plan tests => scalar(@$data);
 
-my $ser = NRD::Serialize->new('none', { });
+my $ser = NRD::Serialize->instance_of('none', { });
 foreach my $d (@$data){
     print TEMP $packet->pack($ser->freeze($d));
 }

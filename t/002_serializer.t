@@ -7,12 +7,12 @@ use Data::Dumper;
 
 plan tests => 2;
 
-my $un = NRD::Serialize->new('none', { });
-my $s = NRD::Serialize->new('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx' });
+my $un = NRD::Serialize->instance_of('none', { });
+my $s = NRD::Serialize->instance_of('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx' });
 
 #diag('will use IV ' . $s->{'iv'} . ' length ' . length($s->{'iv'}));
 
-my $uns = NRD::Serialize->new('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx'});
+my $uns = NRD::Serialize->instance_of('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx'});
 $uns->helo($s->helo);
 
 my $r = {'hostname' => 'this is a string'};
