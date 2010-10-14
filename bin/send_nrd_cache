@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+
+
+use Getopt::Std;
+use IO::Socket;
+use NRD::Packet;
+use NRD::Serialize;
+
+my %opts;
+getopt('c', \%opts);
+my $conf_file = $opts{'c'} || '/etc/send_nrd.cfg';
+my ($host, $port);
+my $conf = {};
+{
+  local *CONF;
+  open CONF, "<", $conf_file or next;
+  while (my $line = <CONF>){
+    chomp $line;
+    next if ($line =~ m/^\s*#/);
+    next if ($line =~ m/^\s*$/);
+    $line =~ s/^\s*(\w+)\s+(.{1,}?)\s*$/$conf->{$1} = $2;/ge;
+  }
+}
+
+$host = $conf->{'host'} ||= 'localhost';
+$port = $conf->{'port'} ||= 5669;
+
+$conf->{'serializer'}   ||= 'none';
+$conf->{'encrypt_type'} ||= '';
+$conf->{'encrypt_key'}  ||= '';
+
+$conf->{'cache_file'}   ||= '/usr/local/nagios/var/send_nsca.cache';
+
+#
+#use Data::Dumper;
+#print Dumper($conf, $host, $port);
+#
+my $serializer = NRD::Serialize->new(lc($conf->{'serializer'}), $conf);
+
+my $sock = IO::Socket::INET->new(PeerAddr => $host,
+                                 PeerPort => $port,
+                                 Proto    => 'tcp',
+                                 ) || write_to_cache_and_exit;
+
+my $packer = NRD::Packet->new();
+if ($serializer->needs_helo){
+  print $sock $packer->pack($serializer->helo);
+}
+
+while (my $line = <STDIN>){
+  chomp $line;
+  my $r = {
+    'time' => time(),
+    %{ $serializer->from_line($line) }
+  };
+  print $sock $packer->pack($serializer->freeze($r));
+}
+
+close $sock;
+exit;
+
+sub write_to_cache {
+  local *CACHE;
+  open CACHE, "+>", $cache_file;
+  print CACHE $now, $/;
+  close CACHE;
+}
+
+sub write_to_cache_and_exit {
+  write_to_cache;
+  exit;
+}
