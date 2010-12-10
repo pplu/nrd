@@ -7,6 +7,8 @@ lib/NRD/Packet.pm
 lib/NRD/Serialize.pm
 lib/NRD/Serialize/none.pm
 lib/NRD/Serialize/crypt.pm
+lib/NRD/Writer.pm
+lib/NRD/Writer/cmdfile.pm
 LICENSE
 Makefile.PL
 MANIFEST

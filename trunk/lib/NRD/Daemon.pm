@@ -8,6 +8,8 @@ use Data::Dumper;
 use NRD::Packet;
 use NRD::Serialize;
 
+use NRD::Writer;
+
 use vars qw($VERSION);
 $VERSION = '0.01';
 
@@ -51,7 +53,7 @@ sub process_request {
         die "Couldn't unserialize a request: $@";
       }
     
-      $self->log(4, "After unfreeze: " . Dumper($request));
+      #$self->log(4, "After unfreeze: " . Dumper($request));
       $self->process_result($request);
 
       # Done processing the request.
@@ -72,42 +74,13 @@ sub process_result {
   my ($self, $result) = @_;
   die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
 
-  my $config = $self->{'server'};
-  my $nagios_str;
-  if ( defined $result->{svc_description} ) {
-     $nagios_str = sprintf('[%d] PROCESS_SERVICE_CHECK_RESULT;%s;%s;%d;%s',
-                           $result->{time},
-                           $result->{host_name},
-                           $result->{svc_description},
-                           $result->{return_code}, 
-                           $result->{plugin_output});
-# Format got from POE-Component-Server-NSCA documentation
-#     $string = "[$time] PROCESS_SERVICE_CHECK_RESULT";
-#     $string = join ';', $string, $message->{host_name}, $message->{svc_description}, 
-#                 $message->{return_code}, $message->{plugin_output};
-  } else {
-      $nagios_str = sprintf('[%d] PROCESS_HOST_CHECK_RESULT;%s;%d;%s',
-                            $result->{time},
-                            $result->{host_name},
-                            $result->{return_code},
-                            $result->{plugin_output});
-# Format got from POE-Component-Server-NSCA documentation
-#     $string = "[$time] PROCESS_HOST_CHECK_RESULT";
-#     $string = join ';', $string, $message->{host_name}, $message->{return_code},
-#                 $message->{plugin_output};
+  eval {
+    $self->{'oWriter'}->write($result);
+  };
+  if ($@){
+    # Error in the write
+    $self->log(0, "NRD Writer error: $@");
   }
-
-  $self->log(4, $nagios_str);
-  
-  if (sysopen (my $fh , $config->{'nagios_cmd'}, POSIX::O_WRONLY)){
-    print $fh "$nagios_str\n";
-    close $fh;
-  } else {
-    open (my $alt, '>>', $config->{'alternate_dump_file'}) or $self->log(0, "Couldn't write to alternate_dump_file $!");
-    print $alt "$nagios_str\n";
-    close $alt;
-  }
-#  print { sysopen (my $fh , $self->{'server'}->{'nagios_cmd'}, POSIX::O_WRONLY) or die "$!\n"; $fh } $nagios_str, "\n";
 }
 
 sub options {
@@ -153,6 +126,16 @@ sub post_configure_hook {
     $self->log(0, "Error loading the serializer. $@");
     $self->log(0, "Aborting server start");
     die "\n"; 
+  }
+
+  eval {
+    my $writer = NRD::Writer->instance_of('cmdfile', $config);
+    $self->{'oWriter'} = $writer;
+  };
+  if ($@) {
+    $self->log(0, "Error loading the result writer. $@");
+    $self->log(0, "Aborting server start");
+    die "\n";
   }
 
   return 1;
