@@ -5,6 +5,8 @@ use warnings;
 
 use base 'NRD::Writer';
 
+use POSIX;
+
 sub new {
   my ($class, $options) = @_;
   $options = {} if (not defined $options);

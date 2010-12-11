@@ -6,6 +6,7 @@ use warnings;
 use base 'NRD::Writer';
 
 use File::Temp qw//;
+use POSIX;
 
 sub new {
   my ($class, $options) = @_;
