@@ -37,24 +37,41 @@ my $data = [
 	['long_svc_name', 'x' x 1000, 0, 'Service check with big service name'],
 	];
 
+# When the NRD server cuts a connection we get a SIG_PIPE. Perls default is to die...
+$SIG{'PIPE'} = 'IGNORE';
+
+sub inject_something_bad {
+   my ($length, $data) = @_;
+   my $sock = IO::Socket::INET->new(PeerAddr => $host,
+                                    PeerPort => $port,
+                                    Proto    => 'tcp',
+                                 ) || die "Can't connect [$!]";
+   print $sock pack("N", $length) or die "Can't tell server the length";
+   print $sock $data or die "Can't send the data";
+   close $sock or die "Can't close socket";
+}
+
 foreach my $config ('none', 'encrypt'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 
 	$nsca->start($type);
-        my $sock = IO::Socket::INET->new(PeerAddr => $host,
-                                 PeerPort => $port,
-                                 Proto    => 'tcp',
-                                 ) || die "Can't connect [$!]";
 
-        # Tell the server we'll send a giga of info...
-	print $sock pack("N", 1024*1024*1024);
-        foreach (1..1024) {
-		print $sock ('.' x 1024*1024)
-	}
-
-        print $sock pack("N", 0);
-	print $sock "GARBAGE!";
+        # Try a big packet... Don't even send the contents
+        eval  {
+           inject_something_bad(1024*1024*1024, '.' x (1024*1024));
+        };
+        diag($@);
+        # Zero length packets shouldn't be a problem either 
+        eval  {
+           inject_something_bad(0, '.');
+        };
+        diag($@);
+        # Inject an incomplete result
+        eval  {
+           inject_something_bad(300, '.');
+        };
+        diag($@);
 
 	#TODO: read data from urandom, spit it into NRD and let it run for a while...
 	
