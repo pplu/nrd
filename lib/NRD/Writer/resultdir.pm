@@ -28,9 +28,10 @@ sub write {
 
   # TODO: Where to put time: file_time? start_time? finish_time?
 
-  $nagios_str  =         "### NRD Check ###\n";
-  #seems to be only informative. Leave out for the moment 
-  #$nagios_str .= sprintf("# Time: %s\n", local);
+  $nagios_str  =         "### Passive Check Result File ###\n";
+  $nagios_str .= sprintf("file_time=%d\n\n", $result->{'time'});
+  $nagios_str .=         "### NRD Check ###\n";
+  $nagios_str .= sprintf("# Time: %s\n", scalar(localtime($result->{time})));
   $nagios_str .= sprintf("host_name=%s\n",   $result->{host_name});
 
   if (defined $result->{svc_description}){
