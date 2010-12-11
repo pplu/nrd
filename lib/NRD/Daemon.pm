@@ -94,6 +94,9 @@ sub options {
   $prop->{'serializer'} ||= undef;
   $template->{'serializer'} = \ $prop->{'serializer'};
 
+  $prop->{'writer'} ||= undef;
+  $template->{'writer'} = \ $prop->{'writer'};
+
   $prop->{'encrypt_key'} ||= undef;
   $template->{'encrypt_key'} = \ $prop->{'encrypt_key'};
 
@@ -103,6 +106,9 @@ sub options {
   $prop->{'alternate_dump_file'} ||= undef;
   $template->{'alternate_dump_file'} = \ $prop->{'alternate_dump_file'};
 
+  $prop->{'check_result_path'} ||= undef;
+  $template->{'check_result_path'} = \ $prop->{'check_result_path'};
+
 }
 
 sub post_configure_hook {
@@ -110,12 +116,7 @@ sub post_configure_hook {
 
   my $config = $self->{'server'};
 
-  die "No nagios_cmd specified" if (not defined $config->{'nagios_cmd'});
-  #die "Cannot find $config->{'nagios_cmd'}"
   die "No serializer defined in config" if (not defined $config->{'serializer'});
-  #die "No encrypt_type defined in config" if (not defined $config->{'encrypt_type'});
-  #die "No encrypt_key defined in config" if (not defined $config->{'encrypt_key'});
-
   $self->log(0, "Using serializer: $config->{'serializer'}");
 
   eval {
@@ -128,8 +129,11 @@ sub post_configure_hook {
     die "\n"; 
   }
 
+  die "No writer defined in config" if (not defined $config->{'writer'});
+  $self->log(0, "Using writer: $config->{'writer'}");
+
   eval {
-    my $writer = NRD::Writer->instance_of('cmdfile', $config);
+    my $writer = NRD::Writer->instance_of(lc($config->{'writer'}), $config);
     $self->{'oWriter'} = $writer;
   };
   if ($@) {
