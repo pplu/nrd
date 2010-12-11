@@ -68,6 +68,7 @@ sub process_request {
       $request = undef;
     }
   }
+  $self->log(4, 'Disconnected client');
 }
 
 sub process_result {
