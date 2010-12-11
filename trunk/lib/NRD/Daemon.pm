@@ -3,7 +3,6 @@ package NRD::Daemon;
 use warnings;
 use strict;
 
-use POSIX;
 use Data::Dumper;
 use NRD::Packet;
 use NRD::Serialize;
