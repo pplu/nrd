@@ -120,7 +120,7 @@ sub post_configure_hook {
   $self->log(0, "Using serializer: $config->{'serializer'}");
 
   eval {
-    my $serializer = NRD::Serialize->instance_of(lc($config->{'serializer'}),$config);
+    my $serializer = NRD::Serialize->instance_of($config->{'serializer'},$config);
     $self->{'oSerializer'} = $serializer;
   };
   if ($@) {
@@ -133,7 +133,7 @@ sub post_configure_hook {
   $self->log(0, "Using writer: $config->{'writer'}");
 
   eval {
-    my $writer = NRD::Writer->instance_of(lc($config->{'writer'}), $config);
+    my $writer = NRD::Writer->instance_of($config->{'writer'}, $config);
     $self->{'oWriter'} = $writer;
   };
   if ($@) {
