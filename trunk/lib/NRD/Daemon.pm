@@ -28,18 +28,27 @@ sub process_request {
 
   if ($serializer->needs_helo){
     eval {
+      local $SIG{ALRM} = sub { die "timeout" };
+      alarm $config->{'timeout'};
       my $helo = $packer->unpack(*STDIN);
+      alarm 0;
       $self->log(4, 'Got HELO: ' . Dumper($helo));
       $serializer->helo($helo);
     };
     if ($@){
+      if ($@ =~ m/timeout/){ $self->log(1, 'Client timeout'); return; }
       $self->log(2, "Couldn't process helo: $@");
+      $@ = undef;
     }
   }
   eval {
+    local $SIG{ALRM} = sub { die "timeout" };
+    alarm $config->{'timeout'};
     $request = $packer->unpack(*STDIN);
+    alarm 0;
   };
   if ($@){
+    if ($@ =~ m/timeout/){ $self->log(1, 'Client timeout'); return; }
     $self->log(2, "Couldn't process packet: $@");
   }
   while ($request){
@@ -58,11 +67,15 @@ sub process_request {
       # Done processing the request.
       $request = undef;
       eval {
+         local $SIG{ALRM} = sub { die "timeout" };
+         alarm $config->{'timeout'};
          # The unpack method croaks if the connection is closed
          $request = $packer->unpack(*STDIN);
+         alarm 0;
       }
     };
     if ($@){
+      if ($@ =~ m/timeout/){ $self->log(1, 'Client timeout'); return; }
       $self->log(2, "Couldn't process request $@");
       $request = undef;
     }
@@ -91,6 +104,9 @@ sub options {
   $prop->{'nagios_cmd'} ||= undef;
   $template->{'nagios_cmd'} = \ $prop->{'nagios_cmd'};
 
+  $prop->{'timeout'} ||= undef;
+  $template->{'timeout'} = \ $prop->{'timeout'};
+
   $prop->{'serializer'} ||= undef;
   $template->{'serializer'} = \ $prop->{'serializer'};
 
@@ -115,6 +131,10 @@ sub post_configure_hook {
   my ($self) = @_;
 
   my $config = $self->{'server'};
+
+  if (not defined $config->{'timeout'}){
+    $config->{'timeout'} = 30;
+  }
 
   die "No serializer defined in config" if (not defined $config->{'serializer'});
   $self->log(0, "Using serializer: $config->{'serializer'}");
