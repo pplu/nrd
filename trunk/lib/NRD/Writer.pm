@@ -8,7 +8,7 @@ use warnings;
 
 sub instance_of {
   my (undef, $type, @args) = @_;
-  my $class = 'NRD::Writer::' . $type;
+  my $class = 'NRD::Writer::' . lc($type);
   {
    my $file = $class;
    $file =~ s/\:\:/\//g;

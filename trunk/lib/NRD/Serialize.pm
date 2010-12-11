@@ -20,7 +20,7 @@ sub from_line {
 
 sub instance_of {
   my (undef, $type, @args) = @_;
-  my $class = 'NRD::Serialize::' . $type;
+  my $class = 'NRD::Serialize::' . lc($type);
   {
    my $file = $class;
    $file =~ s/\:\:/\//g;
