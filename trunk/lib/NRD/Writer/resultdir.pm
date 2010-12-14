@@ -45,7 +45,7 @@ sub write {
   $nagios_str .= sprintf("return_code=%d\n", $result->{return_code});
   $nagios_str .= sprintf("output=%s\\n\n",   $result->{plugin_output});
 
-  my ($fh, $filename) = File::Temp::tempfile( 'XXXXXXX', DIR => $self->{'check_result_path'});
+  my ($fh, $filename) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
   print $fh "$nagios_str\n";
   close $fh;
 
