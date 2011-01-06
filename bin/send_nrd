@@ -9,7 +9,7 @@ use NRD::Packet;
 use NRD::Serialize;
 
 my %opts;
-getopt('c', \%opts);
+getopts('c:', \%opts) || die "Incorrect options";
 my $conf_file = $opts{'c'} || '/etc/send_nrd.cfg';
 my ($host, $port);
 my $conf = {};
