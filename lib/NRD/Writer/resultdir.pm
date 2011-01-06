@@ -40,11 +40,19 @@ sub write {
   }
 
   $nagios_str .=         "check_type=1\n"; # 1 is for passive checks
-  $nagios_str .=         "early_timeout=1\n";
-  $nagios_str .=         "exited_ok=1\n";
-  $nagios_str .= sprintf("return_code=%d\n", $result->{return_code});
-  $nagios_str .= sprintf("output=%s\\n\n",   $result->{plugin_output});
+  $nagios_str .=         "scheduled_check=0\n";
+  $nagios_str .=         "reschedule_check=0\n";
 
+  # Not sure how to calculate this at the moment
+  $nagios_str .=         "latency=0.666\n";
+
+  # Not sure what this should be. The .0 is required for Nagios to read the value correctly
+  $nagios_str .=         "start_time=".$result->{'time'}.".0\n"; # Not sure what this should be either
+  $nagios_str .=         "finish_time=".$result->{'time'}.".0\n";
+  $nagios_str .= sprintf("return_code=%d\n", $result->{return_code});
+  $nagios_str .= sprintf("output=%s\n\n",   $result->{plugin_output});
+
+  # Filename must be prefixed with c to be read by Nagios
   my ($fh, $filename) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
   print $fh "$nagios_str\n";
   close $fh;
