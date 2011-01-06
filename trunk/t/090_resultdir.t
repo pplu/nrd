@@ -92,9 +92,9 @@ foreach my $config ('resultdir') {
 
 	like( $host, qr{### Passive Check Result File ###
 file_time=\d+
-
 ### NRD Check ###
 # Time: .*?
+
 host_name=multi_output
 check_type=1
 scheduled_check=0
@@ -107,9 +107,9 @@ output=PING OK - Packet loss = 0%, RTA = 0.46 ms | rta=0.462000ms;3000.000000;50
 
 	like( $service, qr{### Passive Check Result File ###
 file_time=\d+
-
 ### NRD Check ###
 # Time: .*?
+
 host_name=multi_output
 service_description=service1
 check_type=1

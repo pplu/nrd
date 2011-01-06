@@ -35,9 +35,9 @@ sub write {
   my $result_time = $result_list->[0]->{time};
 
   my $nagios_str  =         "### Passive Check Result File ###\n";
-  $nagios_str .= sprintf("file_time=%d\n\n", $result_time);
+  $nagios_str .= sprintf("file_time=%d\n", $result_time);
   $nagios_str .=         "### NRD Check ###\n";
-  $nagios_str .= sprintf("# Time: %s\n", scalar(localtime($result_time)));
+  $nagios_str .= sprintf("# Time: %s\n\n", scalar(localtime($result_time)));
 
   foreach my $result (@$result_list) {
     $nagios_str .= $self->single_result( $result );
