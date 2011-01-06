@@ -23,16 +23,46 @@ sub new {
 }
 
 sub write {
-  my ($self, $result) = @_;
+  my ($self, $result_list) = @_;
   my $config = $self->{'server'};
+
+  if (ref $result_list ne "ARRAY") {
+    $result_list = [ $result_list ];
+  }
+
+  # We take time to be the first result in the list - this maybe extended in future
+  # so that we use the time of each result independently
+  my $result_time = $result_list->[0]->{time};
+
+  my $nagios_str  =         "### Passive Check Result File ###\n";
+  $nagios_str .= sprintf("file_time=%d\n\n", $result_time);
+  $nagios_str .=         "### NRD Check ###\n";
+  $nagios_str .= sprintf("# Time: %s\n", scalar(localtime($result_time)));
+
+  foreach my $result (@$result_list) {
+    $nagios_str .= $self->single_result( $result );
+  }
+
+  # Filename must be prefixed with c to be read by Nagios
+  my ($fh, $filename) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
+  print $fh "$nagios_str\n";
+  close $fh;
+
+  # Now that we've written the result, we have to signal Nagios that it's OK to process it
+
+  my $signal_file = "$filename.ok";
+  sysopen my $signal, $signal_file, POSIX::O_WRONLY|POSIX::O_CREAT|POSIX::O_NONBLOCK|POSIX::O_NOCTTY or die("Can't create signal $signal_file: $!");
+  close $signal or die("Can't close signal $signal_file: $!");
+  
+}
+
+sub single_result {
+  my ($self, $result) = @_;
+
   my $nagios_str;
 
   # TODO: Where to put time: file_time? start_time? finish_time?
 
-  $nagios_str  =         "### Passive Check Result File ###\n";
-  $nagios_str .= sprintf("file_time=%d\n\n", $result->{'time'});
-  $nagios_str .=         "### NRD Check ###\n";
-  $nagios_str .= sprintf("# Time: %s\n", scalar(localtime($result->{time})));
   $nagios_str .= sprintf("host_name=%s\n",   $result->{host_name});
 
   if (defined $result->{svc_description}){
@@ -52,17 +82,7 @@ sub write {
   $nagios_str .= sprintf("return_code=%d\n", $result->{return_code});
   $nagios_str .= sprintf("output=%s\n\n",   $result->{plugin_output});
 
-  # Filename must be prefixed with c to be read by Nagios
-  my ($fh, $filename) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
-  print $fh "$nagios_str\n";
-  close $fh;
-
-  # Now that we've written the result, we have to signal Nagios that it's OK to process it
-
-  my $signal_file = "$filename.ok";
-  sysopen my $signal, $signal_file, POSIX::O_WRONLY|POSIX::O_CREAT|POSIX::O_NONBLOCK|POSIX::O_NOCTTY or die("Can't create signal $signal_file: $!");
-  close $signal or die("Can't close signal $signal_file: $!");
-  
+  return $nagios_str;
 }
 
 1;
