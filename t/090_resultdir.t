@@ -103,7 +103,8 @@ latency=0.666
 start_time=\d+\.0
 finish_time=\d+\.0
 return_code=0
-output=PING OK - Packet loss = 0%, RTA = 0.46 ms | rta=0.462000ms;3000.000000;5000.000000;0.000000 pl=0%;80;100;0\nLINE 1\nLINE 2\nLINE 3\n}, "host as expected");
+output=PING OK - Packet loss = 0%, RTA = 0.46 ms \| rta=0\.462000ms;3000\.000000;5000\.000000;0\.000000 pl=0%;80;100;0\\nLINE 1\\nLINE 2\\nLINE 3\\n
+}, "host as expected" );
 
 	like( $service, qr{### Passive Check Result File ###
 file_time=\d+
@@ -119,8 +120,9 @@ latency=0.666
 start_time=\d+\.0
 finish_time=\d+\.0
 return_code=0
-output=DISK OK - free space: / 3326 MB \(56%\); | /=2643MB;5948;5958;0;5968\n/ 15272 MB \(77%\);\n/boot 68 MB \(69%\);\n/home 69357 MB \(27%\);\n/var/log 819 MB \(84%\); | /boot=68MB;88;93;0;98\n/home=69357MB;253404;253409;0;253414\n/var/log=818MB;970;975;0;980\n}, "Service file as expected" );
-	
+output=DISK OK - free space: / 3326 MB \(56%\); \| /=2643MB;5948;5958;0;5968\\n/ 15272 MB \(77%\);\\n/boot 68 MB \(69%\);\\n/home 69357 MB \(27%\);\\n/var/log 819 MB \(84%\); \| /boot=68MB;88;93;0;98\\n/home=69357MB;253404;253409;0;253414\\n/var/log=818MB;970;975;0;980\\n
+}, "service as expected");
+
 	$nsca->stop;
     }
 }
