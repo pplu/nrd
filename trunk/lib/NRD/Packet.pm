@@ -20,17 +20,27 @@ sub new {
 
 sub pack {
    my ($self, $content) = @_;
-   my $packet = pack("N", length($content)) . $content;
+   my $packet = length($content)."\n".$content;
    return $packet;
 }
 
+# Expect either: END or 1234 to be size of next record
+# Needs a line terminator because of buffered input/output
 sub unpack {
    my ($self, $fd) = @_;
-   read($fd, my $bytes, 4) == 4 or croak "Can't read packet header";
-   $bytes = unpack("N", $bytes);
+   my $command = <$fd>;
+   chomp $command;
+   if ($command eq "END") {
+     # Possible clash if $buffer=="END"
+     return $command;
+   } elsif ($command !~ /^\d+$/) {
+     # Unknown
+     croak "Can't read packet header";
+   }
+   my $bytes = $command;
    croak "NRD packet bigger than expected ($bytes bytes). Are you getting trash?" if ($bytes > $self->{'max_packet_size'});
    croak "NRD packet with zero length. Are you getting trash?" if ($bytes <= 0);
-   read($fd, my $buffer, $bytes) == $bytes or croak "Didn't recieve whole packet";
+   read($fd, my $buffer, $bytes) == $bytes or croak "Didn't receive whole packet";
    return $buffer;
 }
 

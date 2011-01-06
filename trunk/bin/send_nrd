@@ -41,6 +41,7 @@ my $sock = IO::Socket::INET->new(PeerAddr => $host,
                                  PeerPort => $port,
                                  Proto    => 'tcp',
                                  ) || die "Can't connect [$!]";
+$sock->autoflush(1);
 
 my $packer = NRD::Packet->new();
 if ($serializer->needs_helo){
@@ -55,6 +56,20 @@ while (my $line = <STDIN>){
   };
   print $sock $packer->pack($serializer->freeze($r));
 }
+print $sock "END\n";
 
+my $response = <$sock>;
 close $sock;
+
+if (! defined $response) {
+  print "No response from server\n";
+  exit 1;
+}
+
+chomp $response;
+if ($response ne "DONE") {
+  print "Bad response from server: $response\n";
+  exit 1;
+}
+
 exit;
