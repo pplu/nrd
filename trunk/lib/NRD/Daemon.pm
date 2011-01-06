@@ -51,6 +51,7 @@ sub process_request {
     if ($@ =~ m/timeout/){ $self->log(1, 'Client timeout'); return; }
     $self->log(2, "Couldn't process packet: $@");
   }
+  my @request_batch;
   while ($request){
     $self->log(4, "Got Data: " . Dumper($request));
     eval {
@@ -62,7 +63,11 @@ sub process_request {
       }
     
       #$self->log(4, "After unfreeze: " . Dumper($request));
-      $self->process_result($request);
+      if ($config->{batch_results}) {
+        push @request_batch, $request;
+      } else {
+        $self->process_result($request);
+      }
 
       # Done processing the request.
       $request = undef;
@@ -80,12 +85,21 @@ sub process_request {
       $request = undef;
     }
   }
+  if (@request_batch) {
+    eval { 
+      $self->process_result(\@request_batch);
+    }
+    if ($@) {
+      $self->log(2, "Couldn't process request $@");
+    }
+  }
+  $prop->{client}->send("DONE");
   $self->log(4, 'Disconnected client');
 }
 
 sub process_result {
   my ($self, $result) = @_;
-  die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
+  #die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
 
   eval {
     $self->{'oWriter'}->write($result);
@@ -124,6 +138,9 @@ sub options {
 
   $prop->{'check_result_path'} ||= undef;
   $template->{'check_result_path'} = \ $prop->{'check_result_path'};
+
+  $prop->{'batch_results'} ||= undef;
+  $template->{'batch_results'} = \ $prop->{'batch_results'};
 
 }
 
