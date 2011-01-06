@@ -52,10 +52,18 @@ sub stop {
 
 sub send {
 	my ($self, $data) = @_;
+	my $pipe_error=0;
+	local $SIG{PIPE} = sub { $pipe_error++ };
 	my @output = map { join("\t", @$_)."\n" } @$data;
 	open SEND, "| ".$self->send_cmd;
 	print SEND @output;
 	close SEND;
+	#warn("?=$?, pipe_error=$pipe_error\n");
+	if ($? == 0 && $pipe_error == 0) {
+		return 1;
+	} else {
+		return undef;
+	}
 }
 
 sub send_cmd {
