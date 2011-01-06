@@ -8,6 +8,8 @@ use base 'NRD::Writer';
 use File::Temp qw//;
 use POSIX;
 
+use Time::HiRes qw(time);
+
 sub new {
   my ($class, $options) = @_;
   $options = {} if (not defined $options);
@@ -73,11 +75,12 @@ sub single_result {
   $nagios_str .=         "scheduled_check=0\n";
   $nagios_str .=         "reschedule_check=0\n";
 
-  # Not sure how to calculate this at the moment
-  $nagios_str .=         "latency=0.666\n";
+  # Make this the difference between now and the time in the result
+  my $latency = time() - $result->{time};
+  $nagios_str .=         sprintf("latency=%0.5f\n", $latency);
 
   # Not sure what this should be. The .0 is required for Nagios to read the value correctly
-  $nagios_str .=         "start_time=".$result->{'time'}.".0\n"; # Not sure what this should be either
+  $nagios_str .=         "start_time=".$result->{'time'}.".0\n";
   $nagios_str .=         "finish_time=".$result->{'time'}.".0\n";
   $nagios_str .= sprintf("return_code=%d\n", $result->{return_code});
   $nagios_str .= sprintf("output=%s\n\n",   $result->{plugin_output});
