@@ -16,89 +16,74 @@ use base qw/Net::Server::MultiType/;
 
 sub process_request {
   my $self = shift;
-  my $config = $self->{'server'};
   
   $self->log(4, 'Process Request start');
-  my $serializer = $self->{'oSerializer'}; 
-  $self->log(4, "Serializer $self->{'oSerializer'}");
+  my $config = $self->{'server'};
 
-  my $packer = NRD::Packet->new();
-
-  my $request = undef;
-
-  if ($serializer->needs_helo){
-    eval {
-      local $SIG{ALRM} = sub { die "timeout" };
-      alarm $config->{'timeout'};
-      my $helo = $packer->unpack(*STDIN);
-      alarm 0;
-      $self->log(4, 'Got HELO: ' . Dumper($helo));
-      $serializer->helo($helo);
-    };
-    if ($@){
-      if ($@ =~ m/timeout/){ $self->log(1, 'Client timeout'); return; }
-      $self->log(2, "Couldn't process helo: $@");
-      $@ = undef;
-    }
-  }
   eval {
     local $SIG{ALRM} = sub { die "timeout" };
     alarm $config->{'timeout'};
-    $request = $packer->unpack(*STDIN);
-    alarm 0;
+    $self->_process_request();
   };
-  if ($@){
-    if ($@ =~ m/timeout/){ $self->log(1, 'Client timeout'); return; }
-    $self->log(2, "Couldn't process packet: $@");
+  alarm(0);
+  if ($@) {
+    if ($@ =~ m/timeout/){ 
+      $self->log(1, 'Client timeout');
+    } else {
+      $self->log(2, "Couldn't process packet: $@");
+    }
+  } else {
+    # Confirmation of packet processing
+    print "DONE\n";
+  }
+  $self->log(4, 'Disconnected client');
+}
+
+# This routine could croak at any time
+sub _process_request {
+  my ($self) = @_;
+
+  my $serializer = $self->{'oSerializer'}; 
+  $self->log(4, "Serializer $self->{'oSerializer'}");
+
+  my $config = $self->{'server'};
+  my $request = undef;
+  my $packer = NRD::Packet->new();
+
+  if ($serializer->needs_helo){
+    my $helo = $packer->unpack( $config->{client} );
+    $self->log(4, 'Got HELO: ' . Dumper($helo));
+    $serializer->helo($helo);
   }
   my @request_batch;
-  while ($request){
+  while ($request = $packer->unpack( $config->{client} )){
     $self->log(4, "Got Data: " . Dumper($request));
-    eval {
-      eval {
-        $request = $serializer->unfreeze($request);
-      };
-      if ($@){
-        die "Couldn't unserialize a request: $@";
-      }
-    
-      #$self->log(4, "After unfreeze: " . Dumper($request));
-      if ($config->{batch_results}) {
-        push @request_batch, $request;
-      } else {
-        $self->process_result($request);
-      }
 
-      # Done processing the request.
-      $request = undef;
-      eval {
-         local $SIG{ALRM} = sub { die "timeout" };
-         alarm $config->{'timeout'};
-         # The unpack method croaks if the connection is closed
-         $request = $packer->unpack(*STDIN);
-         alarm 0;
-      }
+    last if ($request eq "END");
+    
+    eval {
+      $request = $serializer->unfreeze($request);
     };
     if ($@){
-      if ($@ =~ m/timeout/){ $self->log(1, 'Client timeout'); return; }
-      $self->log(2, "Couldn't process request $@");
-      $request = undef;
+      die "Couldn't unserialize a request: $@";
+    }
+    
+    #$self->log(4, "After unfreeze: " . Dumper($request));
+    if ($config->{batch_results}) {
+      push @request_batch, $request;
+    } else {
+      $self->process_result($request);
     }
   }
   if (@request_batch) {
-    eval { 
-      $self->process_result(\@request_batch);
-    }
-    if ($@) {
-      $self->log(2, "Couldn't process request $@");
-    }
+    $self->process_result(\@request_batch);
   }
-  $prop->{client}->send("DONE");
-  $self->log(4, 'Disconnected client');
 }
 
 sub process_result {
   my ($self, $result) = @_;
+
+  # This is not true if used in a batch_results is set
   #die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
 
   eval {
