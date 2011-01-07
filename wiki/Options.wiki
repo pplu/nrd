@@ -1,0 +1,5 @@
+#summary Options for NRD
+
+= Options in nrd.conf =
+
+  * batch_results - default 0. If set, will batch all the results within one session to pass to the writer. Instead of a hash, will return a list of hashes. Writers need to be written to accept a list. Currently, only resultdir supports this
