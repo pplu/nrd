@@ -1,0 +1,17 @@
+#summary NRD Protocol
+
+= Transfer Protocol =
+
+When a connection is initiated between send_nrd and nrd, depending on the encryption chosen, a HELO message may be sent.
+
+Records are then sent.
+
+There are two types of _record_:
+  * END - no more records
+  * number - the number of bytes to read in
+
+These are ascii characters with a linefeed.
+
+Once the client has sent an "END", it should expect a response to be sent from the nrd server. This should reply with "DONE\n". At this point, it is confirmed that the data has been received.
+
+If you use _batch_results_, it is guaranteed that the data has not been processed correctly.
