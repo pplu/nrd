@@ -4,14 +4,33 @@
 
 When a connection is initiated between send_nrd and nrd, depending on the encryption chosen, a HELO message may be sent.
 
-Records are then sent.
+Packets are then sent.
 
-There are two types of _record_:
-  * END - no more records
-  * number - the number of bytes to read in
+A packet consists of a header in text which is the number of bytes to read (with a linefeed), with the rest to be deserialised. The rest is in the following structure:
+{{{
+{command=>$command,...}
+}}}
 
-These are ascii characters with a linefeed.
+Possible commands:
+  * result - this is a passive result to pass to Nagios
+  * commit - this is a command to commit all previous results in one batch, if the server supports it
 
-Once the client has sent an "END", it should expect a response to be sent from the nrd server. This should reply with "DONE\n". At this point, it is confirmed that the data has been received.
+The format for command=result is:
+{{{
+{
+time=>utime,
+host_name=>$hostname,
+svc_description => $service_description, # If this is a service. Miss out this key if it is a host
+return_code => $return_code,
+plugin_output => $plugin_output,
+}
+}}}
 
-If you use _batch_results_, it is guaranteed that the data has not been processed correctly.
+Once the client has sent a command=commit, it should expect a response to be sent from the nrd server. This will reply will reply with:
+{{{
+{ command => "committed" }
+}}}
+
+At this point, it is confirmed that the data has been received.
+
+If you use _batch_results_ on the server, it is guaranteed that the data has been processed correctly.
