@@ -15,7 +15,7 @@ Possible commands:
   * result - this is a passive result to pass to Nagios
   * commit - this is a command to commit all previous results in one batch, if the server supports it
 
-The format for command=result is:
+If command=result, a data field is expected which can have the format:
 {{{
 {
 time=>utime,
