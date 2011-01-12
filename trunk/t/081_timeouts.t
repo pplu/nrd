@@ -20,7 +20,9 @@ use IO::Socket::INET;
 use NRD::Serialize;
 use NRD::Packet;
 
-plan tests => 18;
+# 6 (2 x 3 servers) plain serializer tests
+# 9 (2 x 3 servers) encrypt serializer tests
+plan tests => 15;
 
 my $host = 'localhost';
 my $port = 5669;
@@ -71,7 +73,7 @@ foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=P
 	$nsca->stop;
 }
 
-my $config = 'encrypt';
+$config = 'encrypt';
 foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
         my $nsca = NSCATest->new( config => $config );
 
@@ -84,13 +86,12 @@ foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=P
                                  ) || die "Can't connect [$!]";
         sleep 8;
 
-        # Seems like the
-        print $sock ("XXXXXXXXXX" x 1000) or ok($! eq 'Broken pipe', "Stale socket errored out");
+        print $sock ("XXXXXXXXXX" x 1000) or ok($! eq 'Broken pipe', "Stale socket errored out before helo");
         close $sock;
         $@ = undef;
 
         #TODO: read data from urandom, spit it into NRD and let it run for a while...
-        my $sock = IO::Socket::INET->new(PeerAddr => $host,
+        $sock = IO::Socket::INET->new(PeerAddr => $host,
                                     PeerPort => $port,
                                     Proto    => 'tcp',
                                  ) || die "Can't connect [$!]";
@@ -102,7 +103,7 @@ foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=P
         # Send the helo
         print $sock $packer->pack($serializer->helo);
         sleep 8;
-        print $sock ("XXXXXXXXXX" x 1000) or ok($! eq 'Broken pipe', "Stale socket errored out");
+        print $sock ("XXXXXXXXXX" x 1000) or ok($! eq 'Broken pipe', "Stale socket errored out after helo");
         close $sock;
         $@ = undef;
 

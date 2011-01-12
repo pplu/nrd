@@ -46,6 +46,7 @@ sub process_request {
 
   if ($serializer->needs_helo){
     my $helo = $self->_read_from_client;
+    return if (not defined $helo);
     #$self->log(4, 'Got HELO: ' . Dumper($helo));
     $serializer->helo($helo);
   }
@@ -74,7 +75,10 @@ sub process_request {
         die "Bad command: $command";
     }
   }
+}
 
+sub post_process_request_hook {
+  my $self = shift;  
   $self->log(4, 'Disconnected client');
 }
 
