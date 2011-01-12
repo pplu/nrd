@@ -24,20 +24,16 @@ sub pack {
    return $packet;
 }
 
-# Expect either: END or 1234 to be size of next record
+# Expect 1234 as a size of bytes to read next
 # Needs a line terminator because of buffered input/output
 sub unpack {
    my ($self, $fd) = @_;
-   my $command = <$fd>;
-   chomp $command;
-   if ($command eq "END") {
-     # Possible clash if $buffer=="END"
-     return $command;
-   } elsif ($command !~ /^\d+$/) {
+   my $bytes = <$fd>;
+   chomp $bytes;
+   if ($bytes !~ /^\d+$/) {
      # Unknown
      croak "Can't read packet header";
    }
-   my $bytes = $command;
    croak "NRD packet bigger than expected ($bytes bytes). Are you getting trash?" if ($bytes > $self->{'max_packet_size'});
    croak "NRD packet with zero length. Are you getting trash?" if ($bytes <= 0);
    read($fd, my $buffer, $bytes) == $bytes or croak "Didn't receive whole packet";
