@@ -29,6 +29,7 @@ sub pack {
 sub unpack {
    my ($self, $fd) = @_;
    my $bytes = <$fd>;
+   croak "No data received" unless defined $bytes;
    chomp $bytes;
    if ($bytes !~ /^\d+$/) {
      # Unknown
