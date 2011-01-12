@@ -34,7 +34,7 @@ my $last_check = [['last_check', '0', 'LastCheckOutput']];
 SKIP: {
 skip "Spooling not implemented yet", 6;
 
-foreach my $config ('none', 'encrypt'){
+foreach my $config ('plain', 'encrypt'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 

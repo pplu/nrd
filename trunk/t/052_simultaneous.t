@@ -40,7 +40,7 @@ my $Fork = Parallel::Forker->new;
 $SIG{CHLD} = sub { $Fork->sig_child; };
 $SIG{TERM} = sub { $Fork->kill_tree_all('TERM') if $Fork; die "Quitting..."; };
 
-foreach my $config ('none', 'encrypt'){
+foreach my $config ('plain', 'encrypt'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $expected = [];
 	my $nsca = NSCATest->new( config => $config, timeout => $timeout );

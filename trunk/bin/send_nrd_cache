@@ -29,7 +29,7 @@ my $conf = {};
 $host = $conf->{'host'} ||= 'localhost';
 $port = $conf->{'port'} ||= 5669;
 
-$conf->{'serializer'}   ||= 'none';
+$conf->{'serializer'}   ||= 'plain';
 $conf->{'encrypt_type'} ||= '';
 $conf->{'encrypt_key'}  ||= '';
 

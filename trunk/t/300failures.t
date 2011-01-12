@@ -37,7 +37,7 @@ my $data = [
 # And make sure nothing listening on port 6669 on other server
 
 foreach my $i (1..100) {
-	my $nsca = NSCATest->new( config => "none" );
+	my $nsca = NSCATest->new( config => "plain" );
 
 	#$nsca->start($type);
 	my $rc = $nsca->send($data);
