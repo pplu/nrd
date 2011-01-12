@@ -59,20 +59,29 @@ sub _process_request {
   while ($request = $packer->unpack( $config->{client} )){
     $self->log(4, "Got Data: " . Dumper($request));
 
-    last if ($request eq "END");
-    
     eval {
       $request = $serializer->unfreeze($request);
     };
     if ($@){
       die "Couldn't unserialize a request: $@";
     }
-    
+
     #$self->log(4, "After unfreeze: " . Dumper($request));
-    if ($config->{batch_results}) {
-      push @request_batch, $request;
-    } else {
-      $self->process_result($request);
+
+    my $command = lc($request->{command});
+    if ($command eq "commit") {
+        last;
+    }
+    elsif ($command eq "result") {
+      my $data = $request->{data};
+      if ($config->{batch_results}) {
+        push @request_batch, $data;
+      } else {
+        $self->process_result($data);
+      }
+    }
+    else {
+      die "Bad command: $command";
     }
   }
   if (@request_batch) {

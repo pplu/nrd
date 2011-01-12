@@ -51,12 +51,15 @@ if ($serializer->needs_helo){
 while (my $line = <STDIN>){
   chomp $line;
   my $r = {
-    'time' => time(),
-    %{ $serializer->from_line($line) }
+    'command' => 'result',
+    'data' => {
+      'time' => time(),
+      %{ $serializer->from_line($line) }
+    },
   };
   print $sock $packer->pack($serializer->freeze($r));
 }
-print $sock "END\n";
+print $sock $packer->pack($serializer->freeze( { 'command' => "commit" } ) );
 
 my $response = <$sock>;
 close $sock;
