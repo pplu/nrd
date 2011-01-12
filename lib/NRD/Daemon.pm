@@ -34,7 +34,10 @@ sub process_request {
     }
   } else {
     # Confirmation of packet processing
-    print "DONE\n";
+    my $packer = NRD::Packet->new();
+    my $serializer = $self->{'oSerializer'}; 
+    print $packer->pack($serializer->freeze({'command'=>'finished'}));
+
   }
   $self->log(4, 'Disconnected client');
 }

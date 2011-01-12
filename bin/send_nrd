@@ -61,7 +61,7 @@ while (my $line = <STDIN>){
 }
 print $sock $packer->pack($serializer->freeze( { 'command' => "commit" } ) );
 
-my $response = <$sock>;
+my $response = $packer->unpack( $sock );
 close $sock;
 
 if (! defined $response) {
@@ -69,9 +69,18 @@ if (! defined $response) {
   exit 1;
 }
 
-chomp $response;
-if ($response ne "DONE") {
-  print "Bad response from server: $response\n";
+eval {
+    $response = $serializer->unfreeze( $response );
+};
+
+if ($@) {
+    print "Couldn't unserialize a request: $@";
+    exit 1;
+}
+
+unless (ref $response eq "HASH" && exists $response->{command} && $response->{command} eq "finished") {
+  require Data::Dump;
+  print "Bad response from server: ".Data::Dump::dump($response)."\n";
   exit 1;
 }
 
