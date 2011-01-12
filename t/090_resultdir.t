@@ -56,7 +56,12 @@ foreach my $config ('resultdir') {
 	system("rm -f $check_result_dir/*");
 
 	$nsca->start($type);
-	$nsca->send($data);
+
+        # Call nsca->send one time per result if we want two separate result files
+        foreach my $result (@$data){
+		$nsca->send([ $result ]);
+	}
+
 	sleep 1;		# Need to wait for --daemon to finish processing
 
         my $dir = "/tmp/testnrd";

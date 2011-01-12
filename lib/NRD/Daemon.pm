@@ -35,9 +35,8 @@ sub process_request {
   } else {
     # Confirmation of packet processing
     my $packer = NRD::Packet->new();
-    my $serializer = $self->{'oSerializer'}; 
+    my $serializer = $self->{'oSerializer'};
     print $packer->pack($serializer->freeze({'command'=>'finished'}));
-
   }
   $self->log(4, 'Disconnected client');
 }
@@ -58,7 +57,7 @@ sub _process_request {
     $self->log(4, 'Got HELO: ' . Dumper($helo));
     $serializer->helo($helo);
   }
-  my @request_batch;
+
   while ($request = $packer->unpack( $config->{client} )){
     $self->log(4, "Got Data: " . Dumper($request));
 
@@ -68,35 +67,27 @@ sub _process_request {
     if ($@){
       die "Couldn't unserialize a request: $@";
     }
-
+    
     #$self->log(4, "After unfreeze: " . Dumper($request));
 
     my $command = lc($request->{command});
     if ($command eq "commit") {
         last;
-    }
-    elsif ($command eq "result") {
-      my $data = $request->{data};
-      if ($config->{batch_results}) {
-        push @request_batch, $data;
-      } else {
-        $self->process_result($data);
-      }
-    }
-    else {
-      die "Bad command: $command";
+    } elsif ($command eq "result") {
+        $self->process_result($request->{data});
+    } else {
+        die "Bad command: $command";
     }
   }
-  if (@request_batch) {
-    $self->process_result(\@request_batch);
-  }
+
+  $self->{'oWriter'}->commit;
 }
 
 sub process_result {
   my ($self, $result) = @_;
 
-  # This is not true if used in a batch_results is set
-  #die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
+  # Don't tell anyone (for the moment) that a writer can write an array of results
+  die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
 
   eval {
     $self->{'oWriter'}->write($result);
@@ -135,9 +126,6 @@ sub options {
 
   $prop->{'check_result_path'} ||= undef;
   $template->{'check_result_path'} = \ $prop->{'check_result_path'};
-
-  $prop->{'batch_results'} ||= undef;
-  $template->{'batch_results'} = \ $prop->{'batch_results'};
 
 }
 

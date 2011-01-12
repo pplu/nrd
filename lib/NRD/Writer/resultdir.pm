@@ -24,6 +24,21 @@ sub new {
   bless($self, $class);
 }
 
+sub _file_header {
+  my ($self, $result_time) = @_;
+
+  # We take time to be the first result in the list - this maybe extended in future
+  # so that we use the time of each result independently
+  #my $result_time = $result_list->[0]->{time};
+
+  my $nagios_str  =         "### Passive Check Result File ###\n";
+  $nagios_str .= sprintf("file_time=%d\n", $result_time);
+  $nagios_str .=         "### NRD Check ###\n";
+  $nagios_str .= sprintf("# Time: %s\n\n", scalar(localtime($result_time)));
+
+  return $nagios_str;
+}
+
 sub write {
   my ($self, $result_list) = @_;
   my $config = $self->{'server'};
@@ -32,30 +47,35 @@ sub write {
     $result_list = [ $result_list ];
   }
 
-  # We take time to be the first result in the list - this maybe extended in future
-  # so that we use the time of each result independently
-  my $result_time = $result_list->[0]->{time};
+  if (not defined $self->{'_fh'}){
+    # Filename must be prefixed with c to be read by Nagios
+    ($self->{'_fh'}, $self->{'_filename'}) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
 
-  my $nagios_str  =         "### Passive Check Result File ###\n";
-  $nagios_str .= sprintf("file_time=%d\n", $result_time);
-  $nagios_str .=         "### NRD Check ###\n";
-  $nagios_str .= sprintf("# Time: %s\n\n", scalar(localtime($result_time)));
+     # We take time to be the first result in the list - this maybe extended in future
+     # so that we use the time of each result independently
+     my $result_time = $result_list->[0]->{time};
+     $self->{'_fh'}->print($self->_file_header($result_time));
 
-  foreach my $result (@$result_list) {
-    $nagios_str .= $self->single_result( $result );
   }
 
-  # Filename must be prefixed with c to be read by Nagios
-  my ($fh, $filename) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
-  print $fh "$nagios_str\n";
-  close $fh;
+  foreach my $result (@$result_list) {
+    $self->{'_fh'}->print($self->single_result($result));
+  }
+}
+
+sub commit {
+  my ($self) = @_;
+
+#  $self->{'_fh'}->print("\n");
+  close $self->{'_fh'};
+  $self->{'_fh'} = undef;
 
   # Now that we've written the result, we have to signal Nagios that it's OK to process it
+  my $signal_file = "$self->{'_filename'}.ok";
+  $self->{'_filename'} = undef;
 
-  my $signal_file = "$filename.ok";
   sysopen my $signal, $signal_file, POSIX::O_WRONLY|POSIX::O_CREAT|POSIX::O_NONBLOCK|POSIX::O_NOCTTY or die("Can't create signal $signal_file: $!");
   close $signal or die("Can't close signal $signal_file: $!");
-  
 }
 
 sub single_result {

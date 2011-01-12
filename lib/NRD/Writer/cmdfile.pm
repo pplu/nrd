@@ -62,4 +62,9 @@ sub write {
 #  print { sysopen (my $fh , $self->{'nagios_cmd'}, POSIX::O_WRONLY) or die "$!\n"; $fh } $nagios_str, "\n";
 }
 
+sub commit {
+   # commit is a noop for cmdfile
+   # each result gets written inmediately to Nagios
+}
+
 1;
