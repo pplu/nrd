@@ -49,8 +49,7 @@ if (! -e $check_result_dir) {
 	mkdir $check_result_dir or die "Cannot mkdir $check_result_dir: $!";
 }
 foreach my $config ('resultdir') {
-    #foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
-    foreach my $type ('--server_type=Single') {
+    foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 
 	system("rm -f $check_result_dir/*");
