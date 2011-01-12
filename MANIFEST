@@ -3,6 +3,7 @@ bin/send_nrd
 bin/send_nrd_cache
 Changes
 etc/nsca2.conf
+lib/NRD/Client.pm
 lib/NRD/Daemon.pm
 lib/NRD/Packet.pm
 lib/NRD/Serialize.pm
@@ -28,12 +29,14 @@ t/070_spooling.t
 t/080_abuse.t
 t/081_timeouts.t
 t/090_resultdir.t
+t/091_batched.t
 t/300failures.t
 t/checks/check_error
 t/checks/check_multiline
 t/nrd_encrypt.cfg
 t/nrd_none.cfg
 t/nrd_resultdir.cfg
+t/nrd_resultdir_batched.cfg
 t/NSCATest.pm
 t/README
 t/runtests
