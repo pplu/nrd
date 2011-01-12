@@ -85,9 +85,9 @@ host_name=multi_output
 check_type=1
 scheduled_check=0
 reschedule_check=0
-latency=0.29874
-start_time=1294846848.0
-finish_time=1294846848.0
+latency=\d+\.\d+
+start_time=\d+.0
+finish_time=\d+.0
 return_code=0
 output=PING OK - Packet loss = 0%, RTA = 0.46 ms | rta=0.462000ms;3000.000000;5000.000000;0.000000 pl=0%;80;100;0\nLINE 1\nLINE 2\nLINE 3\n
 
@@ -96,9 +96,9 @@ service_description=service1
 check_type=1
 scheduled_check=0
 reschedule_check=0
-latency=0.29891
-start_time=1294846848.0
-finish_time=1294846848.0
+latency=\d+\.\d+
+start_time=\d+.0
+finish_time=\d+.0
 return_code=0
 output=DISK OK - free space: / 3326 MB (56%); | /=2643MB;5948;5958;0;5968\n/ 15272 MB (77%);\n/boot 68 MB (69%);\n/home 69357 MB (27%);\n/var/log 819 MB (        84%); | /boot=68MB;88;93;0;98\n/home=69357MB;253404;253409;0;253414\n/var/log=818MB;970;975;0;980\n
 
