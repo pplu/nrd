@@ -33,7 +33,7 @@ my $data = [
 	['long_svc_name', 'x' x 1000, 0, 'Service check with big service name'],
 	];
 
-foreach my $config ('none', 'encrypt'){
+foreach my $config ('plain', 'encrypt'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 

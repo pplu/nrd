@@ -43,7 +43,7 @@ my $data = [
 # When the NRD server cuts a connection we get a SIG_PIPE. Perls default is to die...
 $SIG{'PIPE'} = 'IGNORE';
 
-my $config = 'none';
+my $config = 'plain';
 foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 

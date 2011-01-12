@@ -1,4 +1,4 @@
-package NRD::Serialize::none;
+package NRD::Serialize::plain;
 
 use strict;
 use warnings;

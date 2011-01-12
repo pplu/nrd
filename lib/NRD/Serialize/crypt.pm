@@ -4,7 +4,7 @@ use Carp;
 
 # overrides freeze and unfreeze methods, encrypting and
 # unencrypting data first
-use base 'NRD::Serialize::none';
+use base 'NRD::Serialize::plain';
 
 sub new {
   my ($class, $options) = @_;

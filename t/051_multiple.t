@@ -32,7 +32,7 @@ for (1 .. $iterations) {
 	push @$copies, @$c;
 }
 
-foreach my $config ('none', 'encrypt'){
+foreach my $config ('plain', 'encrypt'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 

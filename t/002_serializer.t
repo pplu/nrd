@@ -7,7 +7,7 @@ use Data::Dumper;
 
 plan tests => 2;
 
-my $un = NRD::Serialize->instance_of('none', { });
+my $un = NRD::Serialize->instance_of('plain', { });
 my $s = NRD::Serialize->instance_of('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx' });
 
 #diag('will use IV ' . $s->{'iv'} . ' length ' . length($s->{'iv'}));
