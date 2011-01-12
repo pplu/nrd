@@ -14,51 +14,45 @@ $VERSION = '0.01';
 
 use base qw/Net::Server::MultiType/;
 
+sub _read_from_client {
+  my $self = shift;
+  my $data = undef;
+  eval {
+    local $SIG{ALRM} = sub { alarm(0); die "timeout" };
+    alarm $self->{'server'}->{'timeout'};
+    $data = $self->{'oPacker'}->unpack( $self->{'server'}->{client} );
+    alarm(0);
+  };
+  if ($@) {
+    if ($@ =~ m/timeout/){
+      $self->log(1, 'Client timeout');
+    } else {
+      $self->log(2, "Couldn't process packet: $@");
+    }
+    return undef;
+  }
+  return $data;
+}
+
 sub process_request {
   my $self = shift;
   
   $self->log(4, 'Process Request start');
   my $config = $self->{'server'};
+  my $packer = $self->{'oPacker'};
 
-  eval {
-    local $SIG{ALRM} = sub { die "timeout" };
-    alarm $config->{'timeout'};
-    $self->_process_request();
-  };
-  alarm(0);
-  if ($@) {
-    if ($@ =~ m/timeout/){ 
-      $self->log(1, 'Client timeout');
-    } else {
-      $self->log(2, "Couldn't process packet: $@");
-    }
-  } else {
-    # Confirmation of packet processing
-    my $packer = NRD::Packet->new();
-    my $serializer = $self->{'oSerializer'};
-    print $packer->pack($serializer->freeze({'command'=>'finished'}));
-  }
-  $self->log(4, 'Disconnected client');
-}
-
-# This routine could croak at any time
-sub _process_request {
-  my ($self) = @_;
-
-  my $serializer = $self->{'oSerializer'}; 
+  my $serializer = $self->{'oSerializer'};
   $self->log(4, "Serializer $self->{'oSerializer'}");
 
-  my $config = $self->{'server'};
-  my $request = undef;
-  my $packer = NRD::Packet->new();
-
   if ($serializer->needs_helo){
-    my $helo = $packer->unpack( $config->{client} );
-    $self->log(4, 'Got HELO: ' . Dumper($helo));
+    my $helo = $self->_read_from_client;
+    #$self->log(4, 'Got HELO: ' . Dumper($helo));
     $serializer->helo($helo);
   }
 
-  while ($request = $packer->unpack( $config->{client} )){
+  my $request = undef;
+
+  while ($request = $self->_read_from_client){
     $self->log(4, "Got Data: " . Dumper($request));
 
     eval {
@@ -67,11 +61,12 @@ sub _process_request {
     if ($@){
       die "Couldn't unserialize a request: $@";
     }
-    
-    #$self->log(4, "After unfreeze: " . Dumper($request));
 
     my $command = lc($request->{command});
     if ($command eq "commit") {
+        $self->{'oWriter'}->commit;
+        # Confirmation of packet processing
+        print $packer->pack($serializer->freeze({'command'=>'finished'}));
         last;
     } elsif ($command eq "result") {
         $self->process_result($request->{data});
@@ -80,7 +75,7 @@ sub _process_request {
     }
   }
 
-  $self->{'oWriter'}->commit;
+  $self->log(4, 'Disconnected client');
 }
 
 sub process_result {
@@ -160,6 +155,16 @@ sub post_configure_hook {
   };
   if ($@) {
     $self->log(0, "Error loading the result writer. $@");
+    $self->log(0, "Aborting server start");
+    die "\n";
+  }
+
+  eval {
+    my $packer = NRD::Packet->new();
+    $self->{'oPacker'} = $packer;
+  };
+  if ($@) {
+    $self->log(0, "Error loading NRD::Packet. $@");
     $self->log(0, "Aborting server start");
     die "\n";
   }
