@@ -1,6 +1,5 @@
 bin/nrd
 bin/send_nrd
-bin/send_nrd_cache
 Changes
 etc/nsca2.conf
 lib/NRD/Client.pm
@@ -15,7 +14,6 @@ lib/NRD/Writer/resultdir.pm
 LICENSE
 Makefile.PL
 MANIFEST
-NRD-Daemon-0.01.tar.gz
 README
 t/001_load.t
 t/002_serializer.t
@@ -30,6 +28,8 @@ t/080_abuse.t
 t/081_timeouts.t
 t/090_resultdir.t
 t/091_batched.t
+t/091_resultdir_batched.t
+t/092_batched.t
 t/300failures.t
 t/checks/check_error
 t/checks/check_multiline
