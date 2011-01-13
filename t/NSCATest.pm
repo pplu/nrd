@@ -28,7 +28,8 @@ sub start {
 	$mode ||= "--server_type=Single";
 
 	printf "Starting nrd with $mode\n";
-	system("perl -I lib bin/nrd --conf_file=t/nrd_".$self->config.".cfg $mode");
+        my $perl = $^X;
+	system("$perl -I lib bin/nrd --conf_file=t/nrd_".$self->config.".cfg $mode");
 
 	sleep 2;	# Let daemon start
 	open F, "/tmp/nrd.pid" or die "No pid file found";
@@ -69,7 +70,8 @@ sub send {
 sub send_cmd {
 	my ($self) = @_;
 	my $timeout = $self->timeout || 2;
-	return "perl -I lib bin/send_nrd -c t/send_" . $self->config . ".cfg";
+        my $perl = $^X;
+	return "$perl -I lib bin/send_nrd -c t/send_" . $self->config . ".cfg";
 }
 
 sub read_cmd {
