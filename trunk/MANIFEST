@@ -27,7 +27,6 @@ t/070_spooling.t
 t/080_abuse.t
 t/081_timeouts.t
 t/090_resultdir.t
-t/091_batched.t
 t/091_resultdir_batched.t
 t/092_batched.t
 t/300failures.t
