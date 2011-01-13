@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Getopt::Std;
+use NRD::Client;
+
+my %opts;
+getopts('c:', \%opts) || die "Incorrect options";
+my $conf_file = $opts{'c'} || '/etc/send_nrd.cfg';
+my ($host, $port);
+my $conf = {};
+{
+  local *CONF;
+  open CONF, "<", $conf_file or next;
+  while (my $line = <CONF>){
+    chomp $line;
+    next if ($line =~ m/^\s*#/);
+    next if ($line =~ m/^\s*$/);
+    $line =~ s/^\s*(\w+)\s+(.{1,}?)\s*$/$conf->{$1} = $2;/ge;
+  }
+}
+
+$host = $conf->{'host'} ||= 'localhost';
+$port = $conf->{'port'} ||= 5669;
+
+$conf->{'serializer'}   ||= 'plain';
+$conf->{'encrypt_type'} ||= '';
+$conf->{'encrypt_key'}  ||= '';
+
+#
+#use Data::Dumper;
+#print Dumper($conf, $host, $port);
+#
+my $client;
+eval {
+    my $client = NRD::Client->connect_with_serializer(
+        $conf->{'serializer'}, 
+        $conf,
+        PeerAddr => $host,
+        PeerPort => $port, 
+        Proto    => 'tcp',
+    );
+    
+    $client->send_results_from_lines( *STDIN );
+    $client->end;
+};
+if ($@) {
+  print $@;
+  exit 1;
+}
+
+exit;
