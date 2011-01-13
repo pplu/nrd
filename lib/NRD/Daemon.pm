@@ -185,22 +185,14 @@ NRD::Daemon - NRD Nagios Result Distributor
 
 =head1 SYNOPSIS
 
+  use NRD::Daemon;
+  NRD::Daemon->run(conf_file => '/etc/nrd.conf');
 
 =head1 DESCRIPTION
 
+Daemon that attends NRD requests. Is a subclass of Net::Server.
 
-
-=head1 USAGE
-
-
-
-=head1 BUGS
-
-
-
-=head1 SUPPORT
-
-
+Project Home Page: http://code.google.com/p/nrd/
 
 =head1 AUTHOR
 
@@ -208,19 +200,21 @@ NRD::Daemon - NRD Nagios Result Distributor
     CPAN ID: JLMARTIN
     CAPSiDE
     jlmartinez@capside.com
-    http://www.pplusdomain.net
+
+=head1 CONTRIBUTORS
+
+    Ton Voon
+    CPAN ID: TONVOON
+    Opsera
 
 =head1 COPYRIGHT
 
-This program is free software; you can redistribute
-it and/or modify it under the same terms as Perl itself.
+Copyright (c) 2010 by Jose Luis Martinez Torres
+
+Licensed under the GNU General Public License v3
 
 The full text of the license can be found in the
 LICENSE file included with this module.
-
-=head1 SEE ALSO
-
-perl(1).
 
 =cut
 

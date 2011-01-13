@@ -30,4 +30,27 @@ sub instance_of {
   return $class->new(@args);
 }
 
+#################### main pod documentation begin ###################
+
+=head1 NAME
+
+NRD::Serialize - Serialize perl datastructures to get transmitted over the net
+
+=head1 DESCRIPTION
+
+Project Home Page: http://code.google.com/p/nrd/
+
+=head1 METHODS
+
+=head2 from_line($line)
+
+Parses a line formatted in "hostname<TAB>[svc_description<TAB>]return_code<TAB>plugin_output<NEWLINE>" fasion
+and returns a hashref
+
+=head2 instance_of($type, @args)
+
+Returns an instance of an NRD::Serialize::$type class. @args is passed to the constructor of the serializer
+
+=cut
+
 1;

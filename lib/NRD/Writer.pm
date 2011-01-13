@@ -21,4 +21,23 @@ sub instance_of {
   return $class->new(@args);
 }
 
+#################### main pod documentation begin ###################
+
+=head1 NAME
+
+NRD::Writer - Write results into Nagios
+
+=head1 DESCRIPTION
+
+Project Home Page: http://code.google.com/p/nrd/
+
+=head1 METHODS
+
+=head2 instance_of($type, @args)
+
+Returns an instance of an NRD::Writer::$type class. @args is passed to the constructor of the writer
+
+=cut
+
+
 1;
