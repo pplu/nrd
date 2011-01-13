@@ -41,4 +41,26 @@ sub unpack {
    return $buffer;
 }
 
+#################### main pod documentation begin ###################
+
+=head1 NAME
+
+NRD::Packet - Interpret the requests and responses for NRD
+
+=head1 DESCRIPTION
+
+Project Home Page: http://code.google.com/p/nrd/
+
+=head1 METHODS
+
+=head2 pack($content)
+
+Prepare a string to get transmitted over the net
+
+=head2 unpack($fd)
+
+Get a content from $fd that was transmitted with "pack" on the other end
+
+=cut
+
 1;

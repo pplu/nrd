@@ -5,6 +5,7 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 WriteMakefile(
     NAME         => 'NRD::Daemon',
+    LICENSE      => 'gpl',
     VERSION_FROM => 'lib/NRD/Daemon.pm', # finds \$VERSION
     AUTHOR       => 'Jose Luis Martinez (jlmartinez@capside.com)',
     ABSTRACT     => 'Nagios Result Distributor',
