@@ -58,17 +58,17 @@ foreach my $config ('resultdir_batched') {
 	$nsca->send($data);
 	sleep 1;		# Need to wait for --daemon to finish processing
 
-        my $dir = "/tmp/testnrd";
-        opendir DIR, "$dir" or die "Cannot opendir $dir: $!";
-        my @files = sort grep !/^\.\.?\z/, readdir DIR or die "Cannot readdir: $!";
+        my $check_result_dir = "/tmp/testnrd";
+        opendir DIR, "$check_result_dir" or die "Cannot opendir $check_result_dir: $!";
+        my @files = sort grep !/^\.\.?\z/, readdir DIR;
         closedir DIR;
 
-        is( scalar @files, 2, "Should have two files" );
+        is( scalar @files, 2, "Should have two files" ) || die("Need files for subsequent tests");
         like( $files[0], qr/^c\w{6}$/, "File has pattern of cXXXXXX" );
         is( $files[0].".ok", $files[1], "With same filename with .ok added at end" );
 
 	# Read contents of file
-	open F, "$dir/$files[0]" or die "Cannot open: $!";
+	open F, "$check_result_dir/$files[0]" or die "Cannot open: $!";
 	my $first;
 	{ local $/ = undef; $first = <F>; };
 	close F;
