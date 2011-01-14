@@ -13,7 +13,7 @@ use Carp;
 Creates a new NRD::Client object. Options include
   * serializer - required
   * timeout - defaults to no, otherwise number of seconds. This is a timeout per send/receive of data
-  * timeout_handler - sub to call on timeout. Defaults to CORE::die
+  * timeout_handler - sub to call on timeout. Defaults to croak
 
 =cut
 
@@ -22,7 +22,7 @@ sub new {
     $options ||= {};
     my $self = { 
         timeout => 0,
-        timeout_handler => sub { CORE::die(@_) },
+        timeout_handler => sub { croak("Timeout") },
         serializer => undef,
         %$options,
     };
@@ -50,7 +50,15 @@ sub connect {
     $sock->autoflush(1);
     $self->{send_sock} = sub {
         my $data = shift;
+        # I think need this funny condition because local $SIG{ALRM} is then in the scope of this block
+        local $SIG{ALRM} = $self->{timeout_handler} if $self->{timeout};
+        if ($self->{timeout}) {
+            alarm( $self->{timeout} );
+        }
         print $sock $data;
+        if ($self->{timeout}) {
+            alarm(0);
+        }
     };
     $self->{sock} = $sock;
     if ($self->{serializer}->needs_helo) {
@@ -103,8 +111,12 @@ sub end {
 
     $self->{send_sock}->($self->{packer}->pack( $self->{serializer}->freeze( { command => "commit" } ) ) );
     
+    # I think need this funny condition because local $SIG{ALRM} is then in the scope of this block
+    local $SIG{ALRM} = $self->{timeout_handler} if $self->{timeout};
+    alarm( $self->{timeout} ) if $self->{timeout};
     my $response = $self->{packer}->unpack( $self->{sock} );
     close $self->{sock};
+    alarm(0) if $self->{timeout};
 
     croak "No response from server" unless defined $response;
 
