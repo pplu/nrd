@@ -11,11 +11,13 @@ WriteMakefile(
     ABSTRACT     => 'Nagios Result Distributor',
     EXE_FILES    => [ 'bin/send_nrd', 'bin/nrd' ],
     PREREQ_PM    => {
-                     'Test::Simple' => 0.44,
+                     'Test::Simple' => 0.44,  # for testing only
+                     'Clone' => 0,            # for testing only
+                     'Parallel::Forker' => 0, # for testing only
 		     'Net::Server' => 0,
 		     'Net::CIDR' => 0,
-		     #'Mcrypt' => 0,
-		     'Crypt::CBC' => 0,
+		     'Crypt::CBC' => 0,       # for testing. optional for operation
+                     'Crypt::Blowfish' => 0,  # for testing. optional for operation
 		     'JSON::XS' => 0,
                     },
 );
