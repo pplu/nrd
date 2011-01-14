@@ -21,7 +21,7 @@ use Parallel::Forker;
 my $iterations = 3;
 my $timeout = 8;
 
-plan tests => 12;
+plan tests => (3 * 3 * 2);
 
 my $data = [
         ["hostname", "0", "Plugin output"],
@@ -40,7 +40,7 @@ my $Fork = Parallel::Forker->new;
 $SIG{CHLD} = sub { $Fork->sig_child; };
 $SIG{TERM} = sub { $Fork->kill_tree_all('TERM') if $Fork; die "Quitting..."; };
 
-foreach my $config ('plain', 'encrypt'){
+foreach my $config ('plain', 'encrypt', 'digest'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $expected = [];
 	my $nsca = NSCATest->new( config => $config, timeout => $timeout );

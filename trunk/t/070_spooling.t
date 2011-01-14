@@ -16,7 +16,7 @@ use strict;
 use NSCATest;
 use Test::More;
 
-plan tests => 6;
+plan tests => (3 * 3);
 
 my $data = [ 
 	["hostname", "0", "Plugin output"],
@@ -32,9 +32,9 @@ my $data = [
 my $last_check = [['last_check', '0', 'LastCheckOutput']];
 
 SKIP: {
-skip "Spooling not implemented yet", 6;
+skip "Spooling not implemented yet", 9;
 
-foreach my $config ('plain', 'encrypt'){
+foreach my $config ('plain', 'encrypt', 'digest'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 

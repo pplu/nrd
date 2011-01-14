@@ -19,7 +19,7 @@ use Clone qw(clone);
 
 my $iterations = 10;
 
-plan tests => 6;
+plan tests => (3 * 3);
 
 my $data = [
 	["hostname", "0", "Plugin output"],
@@ -32,7 +32,7 @@ for (1 .. $iterations) {
 	push @$copies, @$c;
 }
 
-foreach my $config ('plain', 'encrypt'){
+foreach my $config ('plain', 'encrypt', 'digest'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 

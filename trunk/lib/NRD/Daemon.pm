@@ -120,6 +120,12 @@ sub options {
   $prop->{'encrypt_type'} ||= undef;
   $template->{'encrypt_type'} = \ $prop->{'encrypt_type'};
 
+  $prop->{'digest_key'} ||= undef;
+  $template->{'digest_key'} = \ $prop->{'digest_key'};
+
+  $prop->{'digest_type'} ||= undef;
+  $template->{'digest_type'} = \ $prop->{'digest_type'};
+
   $prop->{'alternate_dump_file'} ||= undef;
   $template->{'alternate_dump_file'} = \ $prop->{'alternate_dump_file'};
 
