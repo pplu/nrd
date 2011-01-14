@@ -33,7 +33,7 @@ my $data = [
 	];
 
 # From a different server, run:
-#  ssh -n -N -T -2 -o TCPKeepAlive=yes -o ServerAliveCountMax=3 -o ServerAliveInterval=10 -R 5669:1.0.0.1:6669 {thisserver}
+#  ssh -n -N -T -2 -o TCPKeepAlive=yes -o ServerAliveCountMax=3 -o ServerAliveInterval=10 -R 7669:1.0.0.1:6669 {thisserver}
 # And make sure nothing listening on port 6669 on other server
 
 foreach my $i (1..100) {

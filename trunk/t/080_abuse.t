@@ -20,7 +20,7 @@ use IO::Socket::INET;
 plan tests => 6;
 
 my $host = 'localhost';
-my $port = 5669;
+my $port = 7669;
 
 my $data = [ 
 	["hostname", "0", "Plugin output"],

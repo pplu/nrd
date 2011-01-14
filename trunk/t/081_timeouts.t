@@ -25,7 +25,7 @@ use NRD::Packet;
 plan tests => 15;
 
 my $host = 'localhost';
-my $port = 5669;
+my $port = 7669;
 
 my $data = [ 
 	["hostname", "0", "Plugin output"],
