@@ -8,26 +8,54 @@ use NRD::Packet;
 use NRD::Serialize;
 use Carp;
 
-=item connect_with_serializer( $serializer_name, $serializer_configuration_hash, @options_for_io_socket )
+=item new( \%options )
 
-Creates the connection to NRD::Daemon and sends helo information if serializer requires.
-
-Returns the NRD::Client object
+Creates a new NRD::Client object. Options include
+  * serializer - required
+  * timeout - defaults to no, otherwise number of seconds. This is a timeout per send/receive of data
+  * timeout_handler - sub to call on timeout. Defaults to CORE::die
 
 =cut
 
-sub connect_with_serializer {
-    my ($class, $serializer, $serializer_configuration, @passthrough) = @_;
-    my $self = {};
-    $self->{serializer} = NRD::Serialize->instance_of( lc($serializer), $serializer_configuration );
-    $self->{sock} = IO::Socket::INET->new(@passthrough) || croak "Cannot connect [$!]";
-    $self->{sock}->autoflush(1);
-    $self->{packer} = NRD::Packet->new();
-    if ($self->{serializer}->needs_helo) {
-        my $sock = $self->{sock};
-        print $sock $self->{packer}->pack( $self->{serializer}->helo );
+sub new {
+    my ($class, $options) = @_;
+    $options ||= {};
+    my $self = { 
+        timeout => 0,
+        timeout_handler => sub { CORE::die(@_) },
+        serializer => undef,
+        %$options,
+    };
+    foreach my $var (qw(serializer)) {
+        die "$var not set" unless defined $self->{$var};
     }
+    $self->{serializer} = NRD::Serialize->instance_of( lc($options->{serializer}), $options );
+    $self->{packer} = NRD::Packet->new();
     bless $self, $class;
+}
+
+=item connect( @options )
+
+Creates the connection to NRD::Daemon and sends helo information if serializer requires.
+
+@options is passed through to IO::Socket::INET.
+
+Will croak if failures occur.
+
+=cut
+
+sub connect {
+    my ($self, @passthrough) = @_;
+    my $sock = IO::Socket::INET->new(@passthrough) || croak "Cannot connect [$!]";
+    $sock->autoflush(1);
+    $self->{send_sock} = sub {
+        my $data = shift;
+        print $sock $data;
+    };
+    $self->{sock} = $sock;
+    if ($self->{serializer}->needs_helo) {
+        $self->{send_sock}->($self->{packer}->pack( $self->{serializer}->helo ));
+    }
 }
 
 =item send_result( $data )
@@ -38,8 +66,7 @@ Sends the data packet to NRD::Daemon
 
 sub send_result {
     my $self = shift;
-    my $sock = $self->{sock};
-    print $sock $self->{packer}->pack( $self->{serializer}->freeze( shift ) );
+    $self->{send_sock}->( $self->{packer}->pack( $self->{serializer}->freeze( shift ) ) );
 }
 
 =item send_results_from_lines( $file_descriptor )
@@ -73,8 +100,8 @@ Will send a commit message to Daemon. Will check response - errors will be croak
 
 sub end {
     my $self = shift;
-    my $sock = $self->{sock};
-    print $sock $self->{packer}->pack( $self->{serializer}->freeze( { command => "commit" } ) );
+
+    $self->{send_sock}->($self->{packer}->pack( $self->{serializer}->freeze( { command => "commit" } ) ) );
     
     my $response = $self->{packer}->unpack( $self->{sock} );
     close $self->{sock};

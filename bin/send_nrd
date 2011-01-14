@@ -35,14 +35,12 @@ $conf->{'encrypt_key'}  ||= '';
 #
 my $client;
 eval {
-    my $client = NRD::Client->connect_with_serializer(
-        $conf->{'serializer'}, 
-        $conf,
+    my $client = NRD::Client->new( $conf );
+    $client->connect(
         PeerAddr => $host,
         PeerPort => $port, 
         Proto    => 'tcp',
     );
-    
     $client->send_results_from_lines( *STDIN );
     $client->end;
 };
