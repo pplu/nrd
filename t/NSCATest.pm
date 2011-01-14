@@ -27,9 +27,10 @@ sub start {
 	my ($self, $mode) = @_;
 	$mode ||= "--server_type=Single";
 
-	printf "Starting nrd with $mode\n";
         my $perl = $^X;
-	system("$perl -I lib bin/nrd --conf_file=t/nrd_".$self->config.".cfg $mode");
+    my $command = "$perl -I lib bin/nrd --conf_file=t/nrd_".$self->config.".cfg $mode";
+	printf "Starting nrd with $mode: $command\n";
+	system($command);
 
 	sleep 2;	# Let daemon start
 	open F, "/tmp/nrd.pid" or die "No pid file found";
@@ -40,6 +41,14 @@ sub start {
 	open(F, "> var/nagios.cmd") or die "Cannot create var/nagios.cmd";
 	close F;
 	return $pid;
+}
+
+sub DESTROY {
+    my $self = shift;
+    if ($self->pid) {
+        print "Killing nrd due to not being stopped correctly",$/;
+        $self->stop;
+    }
 }
 
 sub stop {
