@@ -10,7 +10,7 @@ package DummyServer;
 use Net::Server::Single;
 use base qw(Net::Server::Single);
 
-use Data::Dump;
+use Data::Dumper;
 # Limit rate of reading and replying to catch timeouts
 sub process_request {
     my $self = shift;
