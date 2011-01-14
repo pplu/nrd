@@ -10,7 +10,7 @@ use NRD::Serialize;
 use NRD::Writer;
 
 use vars qw($VERSION);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 use base qw/Net::Server::MultiType/;
 
