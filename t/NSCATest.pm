@@ -19,6 +19,7 @@ struct NSCATest => {
 	config => '$',
 	pid => '$',
 	timeout => '$',
+    child_spawned => '$',
 	};
 
 $| = 1;	# Autoflush on
@@ -45,7 +46,7 @@ sub start {
 
 sub DESTROY {
     my $self = shift;
-    if ($self->pid) {
+    if (! $self->child_spawned && $self->pid) {
         print "Killing nrd due to not being stopped correctly",$/;
         $self->stop;
     }

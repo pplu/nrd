@@ -53,7 +53,7 @@ foreach my $config ('plain', 'encrypt'){
 		push @$c, [ "host_$i", "service", 2, "Some unique data: ".rand() ];
 		push @$expected, @$c;
 		$Fork->schedule( 
-			run_on_start => sub { $nsca->send($c) },
+			run_on_start => sub { $nsca->child_spawned(1); $nsca->send($c) },
 			);
 	}
 
