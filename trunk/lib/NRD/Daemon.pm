@@ -60,7 +60,8 @@ sub process_request {
       $request = $serializer->unfreeze($request);
     };
     if ($@){
-      die "Couldn't unserialize a request: $@";
+      $self->log(1, "Couldn't unserialize a request: $@");
+      next;
     }
 
     my $command = lc($request->{command});
