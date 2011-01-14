@@ -1,26 +1,49 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
 use Test::More;
 use NRD::Serialize;
 
 use Data::Dumper;
 
-plan tests => 2;
+use Clone qw(clone);
+
+plan tests => 4;
 
 my $un = NRD::Serialize->instance_of('plain', { });
 my $s = NRD::Serialize->instance_of('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx' });
+my $d = NRD::Serialize->instance_of('digest', {'digest_type' => 'MD5', 'digest_key' => 'secret' });
+
 
 #diag('will use IV ' . $s->{'iv'} . ' length ' . length($s->{'iv'}));
 
 my $uns = NRD::Serialize->instance_of('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx'});
 $uns->helo($s->helo);
 
-my $r = {'hostname' => 'this is a string'};
+my $und = NRD::Serialize->instance_of('digest', {'digest_type' => 'MD5', 'digest_key' => 'secret' });
+my $und_error = NRD::Serialize->instance_of('digest', {'digest_type' => 'MD5', 'digest_key' => 'wrong' });
+
+my $orig_r = {'command' => 'result', data => { 'hostname' => 'this is a string' } };
+
+# copy $r
+
+my $r = clone($orig_r);
 my $no_crypt = $un->freeze($r);
+
+$r = clone($orig_r);
 my $crypted = $s->freeze($r);
 
+$r = clone($orig_r);
+my $digested = $d->freeze($r);
+
 cmp_ok($crypted, 'ne', $no_crypt, 'Crypted and no_crypt versions are different');
+cmp_ok($digested, 'ne', $no_crypt, 'Digested and no_crypt versions are different');
+
 
 my $uncrypted = $uns->unfreeze($crypted);
-is_deeply($uncrypted, $r, 'Unencrypted and no_crypt versions are equal');
+is_deeply($uncrypted, $orig_r, 'Unencrypted and no_crypt versions are equal');
 
+my $undigested = $und->unfreeze($digested);
+is_deeply($undigested, $orig_r, 'Undigested and no_crypt versions are equal');

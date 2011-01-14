@@ -17,7 +17,7 @@ use NSCATest;
 use Test::More;
 use IO::Socket::INET;
 
-plan tests => 6;
+plan tests => (3 * 3);
 
 my $host = 'localhost';
 my $port = 7669;
@@ -51,7 +51,7 @@ sub inject_something_bad {
    close $sock or die "Can't close socket";
 }
 
-foreach my $config ('plain', 'encrypt'){
+foreach my $config ('plain', 'encrypt', 'digest'){
   foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=PreFork') {
 	my $nsca = NSCATest->new( config => $config );
 
