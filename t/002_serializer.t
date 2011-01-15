@@ -10,7 +10,7 @@ use Data::Dumper;
 
 use Clone qw(clone);
 
-plan tests => 4;
+plan tests => 5;
 
 my $un = NRD::Serialize->instance_of('plain', { });
 my $s = NRD::Serialize->instance_of('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx' });
@@ -47,3 +47,8 @@ is_deeply($uncrypted, $orig_r, 'Unencrypted and no_crypt versions are equal');
 
 my $undigested = $und->unfreeze($digested);
 is_deeply($undigested, $orig_r, 'Undigested and no_crypt versions are equal');
+
+eval {
+  $und_error->unfreeze($digested);
+};
+like($@, qr/check that digest_keys are the same/, 'got exception if unserializing with wrong digest_key');
