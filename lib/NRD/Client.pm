@@ -34,6 +34,43 @@ sub new {
     bless $self, $class;
 }
 
+=item read_confg($file)
+
+Read an NRD configuration file.
+
+Returns a hash with options as keys.
+
+Invoke as NRD::Client->read_config (if invoked as a method, 
+in the future, it may mutate the object)
+
+=cut
+
+sub read_config {
+    my ($self, $conf_file) = @_;
+
+    my $conf = {};
+    {
+        local *CONF;
+        open CONF, "<", $conf_file or next;
+        while (my $line = <CONF>){
+            chomp $line;
+            next if ($line =~ m/^\s*#/);
+            next if ($line =~ m/^\s*$/);
+            $line =~ s/^\s*(\w+)\s+(.{1,}?)\s*$/$conf->{$1} = $2;/ge;
+        }
+    }
+
+    $conf->{'host'}         ||= 'localhost';
+    $conf->{'port'}         ||= 5669;
+    $conf->{'serializer'}   ||= 'plain';
+#    $conf->{'encrypt_type'} ||= '';
+#    $conf->{'encrypt_key'}  ||= '';
+#    $conf->{'digest_type'}  ||= '';
+#    $conf->{'digest_key'}   ||= '';
+
+    return $conf;
+}
+
 =item connect( @options )
 
 Creates the connection to NRD::Daemon and sends helo information if serializer requires.
