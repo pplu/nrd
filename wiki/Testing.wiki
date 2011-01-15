@@ -8,6 +8,16 @@ http://www.cpantesters.org/distro/N/NRD-Daemon.html
 
 http://pass.cpantesters.org/distro/N/NRD-Daemon.html
 
+Perl/Platform Version Matrix
+
+http://matrix.cpantesters.org/?dist=NRD-Daemon
+
+For 0.01
+
+http://matrix.cpantesters.org/?dist=NRD-Daemon+0.01
+
+= How to test NRD =
+
 You can test NRD in your platform with:
 
 {{{
