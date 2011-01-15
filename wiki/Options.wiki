@@ -2,4 +2,72 @@
 
 = Options in nrd.conf =
 
-  * batch_results - default 0. If set, will batch all the results within one session to pass to the writer. Instead of a hash, will return a list of hashes. Writers need to be written to accept a list. Currently, only resultdir supports this
+  * server_type
+    * Single: Only one process to attend connections. Only one connection can be handled at a time.
+    * Fork: Fork a server child every time that a client connects. 
+    * PreFork: Maintain a pool of server children to attend to connections
+
+  * user
+    * name of the user the server drops privileges to. This user should have to be able to write results to Nagios.
+  * group
+    * group that the server drops privileges  
+
+### logging ?
+#log_file    /tmp/server.log
+log_level   2
+pid_file    /tmp/nrd.pid
+
+## optional syslog directive
+### used in place of log_file above
+#log_file       Sys::Syslog
+#syslog_logsock unix
+#syslog_ident   myserver
+#syslog_logopt  pid|cons
+
+### access control
+#allow       .+\.(net|com)
+#allow       domain\.com
+#deny        a.+
+cidr_allow  127.0.0.0/8
+#cidr_allow  192.0.2.0/24
+#cidr_deny   192.0.2.4/30
+
+### background the process?
+background  0
+
+### ports to bind (this should bind
+### 127.0.0.1:20205 and localhost:20204)
+### See Net::Server::Proto
+#host        127.0.0.1
+port        7669
+
+### reverse lookups ?
+# reverse_lookups off
+
+  * timeout
+    * number of seconds a client is able to be connected to a server without interacting with it.
+
+  * writer
+    * cmdfile
+    * resultdir
+
+  * nagios_cmd /tmp/nagios
+  * alternate_dump_file /tmp/nrd.dump
+
+  * check_result_path /usr/local/nagios/var/spool/checkresults/
+
+  * serializer
+    * crypt
+    * digest
+    * plain
+
+  * encrypt_type
+    * Blowfish
+    * Any module in Crypt:: namespace
+
+  * encrypt_key
+
+  * digest_type
+    * MD5
+    * SHA1
+    * Any module in Digest:: namespace
