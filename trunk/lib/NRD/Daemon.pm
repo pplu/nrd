@@ -66,9 +66,15 @@ sub process_request {
 
     my $command = lc($request->{command});
     if ($command eq "commit") {
-        $self->{'oWriter'}->commit;
-        # Confirmation of packet processing
-        print $packer->pack($serializer->freeze({'command'=>'finished'}));
+        eval {
+            $self->{'oWriter'}->commit
+        };
+        if ($@){
+            $self->log(1, "Couldn't commit: $@"); 
+        } else {
+            # Confirmation of packet processing
+            print $packer->pack($serializer->freeze({'command'=>'finished'}));
+        }
         last;
     } elsif ($command eq "result") {
         $self->process_result($request->{data});
