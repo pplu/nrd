@@ -66,7 +66,9 @@ sub write {
 sub commit {
   my ($self) = @_;
 
-#  $self->{'_fh'}->print("\n");
+  # someone can just connect and commit
+  die "No results spooled" if (not defined $self->{'_fh'});
+
   close $self->{'_fh'};
   $self->{'_fh'} = undef;
 
