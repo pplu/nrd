@@ -21,8 +21,8 @@ sub _read_from_client {
     local $SIG{ALRM} = sub { alarm(0); die "timeout" };
     alarm $self->{'server'}->{'timeout'};
     $data = $self->{'oPacker'}->unpack( $self->{'server'}->{client} );
-    alarm(0);
   };
+  alarm(0);
   if ($@) {
     if ($@ =~ m/timeout/){
       $self->log(1, 'Client timeout');
