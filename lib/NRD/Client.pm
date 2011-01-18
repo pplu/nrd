@@ -22,7 +22,7 @@ sub new {
     $options ||= {};
     my $self = { 
         timeout => 0,
-        timeout_handler => sub { croak("Timeout") },
+        timeout_handler => sub { alarm(0); croak("Timeout") },
         serializer => undef,
         %$options,
     };
@@ -151,9 +151,15 @@ sub end {
     # I think need this funny condition because local $SIG{ALRM} is then in the scope of this block
     local $SIG{ALRM} = $self->{timeout_handler} if $self->{timeout};
     alarm( $self->{timeout} ) if $self->{timeout};
-    my $response = $self->{packer}->unpack( $self->{sock} );
+    my $response;
+    # This needs to be wrapped otherwise an error is raised below, and that the socket and the alarms are unset
+    eval { 
+        $response = $self->{packer}->unpack( $self->{sock} );
+    };
+    my $error = $@;
     close $self->{sock};
     alarm(0) if $self->{timeout};
+    croak $error if $error;
 
     croak "No response from server" unless defined $response;
 
