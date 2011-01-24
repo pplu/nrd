@@ -60,7 +60,7 @@ foreach my $config ('plain', 'encrypt', 'digest'){
 	$Fork->ready_all;
 	$Fork->wait_all;
 
-	sleep 1;		# Need to wait for --daemon to finish processing
+	sleep 10;		# Need to wait for --daemon to finish processing
 
 	my $output = $nsca->read_cmd;
 
