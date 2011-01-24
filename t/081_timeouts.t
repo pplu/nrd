@@ -103,7 +103,8 @@ foreach my $type ('--server_type=Single', '--server_type=Fork', '--server_type=P
         # Send the helo
         print $sock $packer->pack($serializer->helo);
         sleep 8;
-        print $sock ("XXXXXXXXXX" x 1000) or ok($! eq 'Broken pipe', "Stale socket errored out after helo");
+        print $sock ("XXXXXXXXXX" x 1000);
+        is( $!, 'Broken pipe', "Stale socket errored out after helo" );
         close $sock;
         $@ = undef;
 
