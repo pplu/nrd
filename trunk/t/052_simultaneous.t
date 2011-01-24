@@ -36,8 +36,8 @@ my $data = [
 	];
 
 
-my $Fork = Parallel::Forker->new;
-$SIG{CHLD} = sub { $Fork->sig_child; };
+my $Fork = Parallel::Forker->new( use_sig_child => 1 );
+$SIG{CHLD} = sub { Parallel::Forker::sig_child($Fork); };
 $SIG{TERM} = sub { $Fork->kill_tree_all('TERM') if $Fork; die "Quitting..."; };
 
 foreach my $config ('plain', 'encrypt', 'digest'){
