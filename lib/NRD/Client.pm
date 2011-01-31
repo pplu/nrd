@@ -7,6 +7,7 @@ use IO::Socket;
 use NRD::Packet;
 use NRD::Serialize;
 use Carp;
+use Scalar::Util qw(weaken);
 
 =item new( \%options )
 
@@ -92,11 +93,15 @@ sub connect {
         if ($self->{timeout}) {
             alarm( $self->{timeout} );
         }
-        print $sock $data;
+        my $s = $self->{sock};
+        print $s $data;
         if ($self->{timeout}) {
             alarm(0);
         }
     };
+    # Need to weaken $self as it is in the send_sock routine. Tested in t/005_client.t
+    weaken($self);  
+
     $self->{sock} = $sock;
     if ($self->{serializer}->needs_helo) {
         $self->{send_sock}->($self->{packer}->pack( $self->{serializer}->helo ));
@@ -158,6 +163,10 @@ sub end {
     };
     my $error = $@;
     close $self->{sock};
+
+    # This undef is not strictly necessary, but it stops Memory::Cycle from erroring re: the GLOB variable
+    $self->{sock} = undef;
+
     alarm(0) if $self->{timeout};
     croak $error if $error;
 

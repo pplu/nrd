@@ -19,5 +19,7 @@ WriteMakefile(
 		     'Crypt::CBC' => 0,       # for testing. optional for operation
                      'Crypt::Blowfish' => 0,  # for testing. optional for operation
 		     'JSON::XS' => 0,
+                     'Test::Memory::Cycle' => 1.04,  # for testing only
+                     'Scalar::Util' => 1.23,
                     },
 );

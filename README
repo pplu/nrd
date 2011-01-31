@@ -1,4 +1,4 @@
-pod2text NSCA2::Daemon.pm > README
+pod2text NRD::Daemon.pm > README
 
 If this is still here it means the programmer was too lazy to create the readme file.
 
