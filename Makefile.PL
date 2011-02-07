@@ -1,25 +1,28 @@
+use inc::Module::Install;
+
+name 'NRD-Daemon';
+version_from 'lib/NRD/Daemon.pm';
+license 'gpl';
+author  'Jose Luis Martinez (jlmartinez@capside.com)';
+abstract 'Nagios Result Distributor';
+
+requires 'Net::Server';
+requires 'Net::CIDR';
+requires 'JSON::XS';
+requires 'Scalar::Util';
+
+recommends 'Crypt::CBC';
+recommends 'Crypt::Blowfish';
+
+test_requires 'Test::Simple';
+test_requires 'Clone';
+test_requires 'Parallel::Forker';
+test_requires 'Test::Memory::Cycle';
+test_requires 'Crypt::CBC';
+test_requires 'Crypt::Blowfish';
 
 
-use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
-WriteMakefile(
-    NAME         => 'NRD::Daemon',
-    LICENSE      => 'gpl',
-    VERSION_FROM => 'lib/NRD/Daemon.pm', # finds \$VERSION
-    AUTHOR       => 'Jose Luis Martinez (jlmartinez@capside.com)',
-    ABSTRACT     => 'Nagios Result Distributor',
-    EXE_FILES    => [ 'bin/send_nrd', 'bin/nrd' ],
-    PREREQ_PM    => {
-                     'Test::Simple' => 0.44,  # for testing only
-                     'Clone' => 0,            # for testing only
-                     'Parallel::Forker' => 0, # for testing only
-		     'Net::Server' => 0,
-		     'Net::CIDR' => 0,
-		     'Crypt::CBC' => 0,       # for testing. optional for operation
-                     'Crypt::Blowfish' => 0,  # for testing. optional for operation
-		     'JSON::XS' => 0,
-                     'Test::Memory::Cycle' => 1.04,  # for testing only
-                     'Scalar::Util' => 1.23,
-                    },
-);
+install_script 'bin/send_nrd';
+install_script 'bin/nrd';
+
+WriteAll;
