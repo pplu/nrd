@@ -56,7 +56,7 @@ sub write {
      # Also, check that the client time is not ahead of server time
      my $result_time = $result_list->[0]->{time};
      my ($now, $usecs) = gettimeofday();
-     if ($now > $result_time) {
+     if ($result_time > $now) {
         $result_time = $now;
      }
      $self->{'_fh'}->print($self->_file_header($result_time));
@@ -104,7 +104,7 @@ sub single_result {
 
   # Check that the client time is not ahead of server time
   my ($now, $usecs) = gettimeofday();
-  if ($now > $result->{time}) {
+  if ($result->{time} > $now) {
     $result->{time} = $now;
   }
 
