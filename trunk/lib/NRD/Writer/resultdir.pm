@@ -8,7 +8,7 @@ use base 'NRD::Writer';
 use File::Temp qw//;
 use POSIX;
 
-use Time::HiRes qw(time);
+use Time::HiRes qw(gettimeofday time);
 
 sub new {
   my ($class, $options) = @_;
@@ -53,7 +53,12 @@ sub write {
 
      # We take time to be the first result in the list - this maybe extended in future
      # so that we use the time of each result independently
+     # Also, check that the client time is not ahead of server time
      my $result_time = $result_list->[0]->{time};
+     my ($now, $usecs) = gettimeofday();
+     if ($now > $result_time) {
+        $result_time = $now;
+     }
      $self->{'_fh'}->print($self->_file_header($result_time));
 
   }
@@ -96,6 +101,12 @@ sub single_result {
   $nagios_str .=         "check_type=1\n"; # 1 is for passive checks
   $nagios_str .=         "scheduled_check=0\n";
   $nagios_str .=         "reschedule_check=0\n";
+
+  # Check that the client time is not ahead of server time
+  my ($now, $usecs) = gettimeofday();
+  if ($now > $result->{time}) {
+    $result->{time} = $now;
+  }
 
   # Make this the difference between now and the time in the result
   my $latency = time() - $result->{time};
