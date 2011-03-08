@@ -12,9 +12,11 @@ Perl/Platform Version Matrix
 
 http://matrix.cpantesters.org/?dist=NRD-Daemon
 
-For 0.01
-
 http://matrix.cpantesters.org/?dist=NRD-Daemon+0.01
+
+http://matrix.cpantesters.org/?dist=NRD-Daemon+0.02
+
+http://matrix.cpantesters.org/?dist=NRD-Daemon+0.03
 
 = How to test NRD =
 
