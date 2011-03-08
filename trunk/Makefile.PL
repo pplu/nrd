@@ -8,9 +8,10 @@ abstract 'Nagios Result Distributor';
 
 requires 'Net::Server';
 requires 'Net::CIDR';
-requires 'JSON::XS';
+requires 'JSON';
 requires 'Scalar::Util';
 
+recommends 'JSON::XS';
 recommends 'Crypt::CBC';
 recommends 'Crypt::Blowfish';
 
