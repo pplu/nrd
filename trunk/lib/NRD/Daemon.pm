@@ -93,7 +93,10 @@ sub process_result {
   my ($self, $result) = @_;
 
   # Don't tell anyone (for the moment) that a writer can write an array of results
-  die "Couldn't process a non-hash result" if (ref($result) ne 'HASH');
+  if (ref($result) ne 'HASH') {
+    $self->log(1, "Couldn't process a non-hash result");
+    return;
+  }
 
   eval {
     $self->{'oWriter'}->write($result);
