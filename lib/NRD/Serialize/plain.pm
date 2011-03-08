@@ -3,7 +3,7 @@ package NRD::Serialize::plain;
 use strict;
 use warnings;
 
-use JSON::XS;
+use JSON;
 
 use base 'NRD::Serialize';
 
