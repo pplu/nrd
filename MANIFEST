@@ -57,6 +57,5 @@ t/send_encrypt.cfg
 t/send_plain.cfg
 t/send_resultdir.cfg
 t/send_resultdir_batched.cfg
-t/var/README
 Todo
 var/nagios.cmd
