@@ -31,6 +31,7 @@ my $data = [
 	['x' x 1000, 0, 'Host check with big hostname'],
 	['x' x 1000, 'service OK', 0, 'Service check with big hostname'],
 	['long_svc_name', 'x' x 1000, 0, 'Service check with big service name'],
+        ['<>', '\'' x 1000, 0, 'Service check strange chars'],
 	];
 
 foreach my $config ('plain', 'encrypt', 'digest'){

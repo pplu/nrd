@@ -10,12 +10,11 @@ use Data::Dumper;
 
 use Clone qw(clone);
 
-plan tests => 5;
+plan tests => 6;
 
 my $un = NRD::Serialize->instance_of('plain', { });
 my $s = NRD::Serialize->instance_of('crypt', {'encrypt_type' => 'Blowfish', 'encrypt_key' => 'xxxx' });
 my $d = NRD::Serialize->instance_of('digest', {'digest_type' => 'MD5', 'digest_key' => 'secret' });
-
 
 #diag('will use IV ' . $s->{'iv'} . ' length ' . length($s->{'iv'}));
 
@@ -52,3 +51,10 @@ eval {
   $und_error->unfreeze($digested);
 };
 like($@, qr/check that digest_keys are the same/, 'got exception if unserializing with wrong digest_key');
+
+my $strange_ser = NRD::Serialize->instance_of('plain', { });
+my $strange_struct = {'command' => 'result', data => { 'hostname' => '<>&-=\'"' } };
+
+my $strange_struct_2 = $strange_ser->unfreeze($strange_ser->freeze($strange_struct));
+
+is_deeply($strange_struct_2, $strange_struct, 'Structs with strange chars are equal');
