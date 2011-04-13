@@ -2,7 +2,7 @@ use inc::Module::Install;
 
 name 'NRD-Daemon';
 version_from 'lib/NRD/Daemon.pm';
-license 'gpl';
+license 'gpl_3';
 author  'Jose Luis Martinez (jlmartinez@capside.com)';
 abstract 'Nagios Result Distributor';
 
