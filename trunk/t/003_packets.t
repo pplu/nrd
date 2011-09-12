@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 use NRD::Packet;
 
-plan tests => 9;
+plan tests => 11;
 
 my $packet = NRD::Packet->new();
 my $temp_file = "/tmp/nsca2_test.tmp";
@@ -47,3 +47,9 @@ TODO: {
    fail('Freeze a bigger than max_size packet');
    fail('Unfreeze a bigger than max_size packet');
 }
+
+eval { is( $packet->unpack(*DATA), undef, "Got an undef if the input was 'TEST'" ) };
+is( $@, "", "No error raised" );
+
+__DATA__
+TEST
