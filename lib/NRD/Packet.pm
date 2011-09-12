@@ -24,13 +24,16 @@ sub pack {
    return $packet;
 }
 
-# Expect 1234 as a size of bytes to read next
+# Expect 1234 as a size of bytes to read next. If 'TEST', then will just return undef - useful for testing connectivity
 # Needs a line terminator because of buffered input/output
 sub unpack {
    my ($self, $fd) = @_;
    my $bytes = <$fd>;
    croak "No data received" unless defined $bytes;
    chomp $bytes;
+   if ($bytes eq "TEST") {
+     return undef;
+   }
    if ($bytes !~ /^\d+$/) {
      # Unknown
      croak "Can't read packet header";
