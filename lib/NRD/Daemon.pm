@@ -142,6 +142,9 @@ sub options {
   $prop->{'check_result_path'} ||= undef;
   $template->{'check_result_path'} = \ $prop->{'check_result_path'};
 
+  $prop->{'long_check_result_filename'} ||= undef;
+  $template->{'long_check_result_filename'} = \ $prop->{'long_check_result_filename'};
+
 }
 
 sub post_configure_hook {

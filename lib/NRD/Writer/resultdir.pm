@@ -48,14 +48,21 @@ sub write {
   }
 
   if (not defined $self->{'_fh'}){
+
+    my ($now, $usecs) = gettimeofday();
+    my $timestamp = sprintf( "%d.%06d", $now, $usecs);
+
     # Filename must be prefixed with c to be read by Nagios
-    ($self->{'_fh'}, $self->{'_filename'}) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
+    if ($self->{long_check_result_filename}) {
+        ($self->{'_fh'}, $self->{'_filename'}) = File::Temp::tempfile( 'c'.$timestamp.'.NRD.XXXXXX', DIR => $self->{'check_result_path'});
+    } else {
+        ($self->{'_fh'}, $self->{'_filename'}) = File::Temp::tempfile( 'cXXXXXX', DIR => $self->{'check_result_path'});
+    }
 
      # We take time to be the first result in the list - this maybe extended in future
      # so that we use the time of each result independently
      # Also, check that the client time is not ahead of server time
      my $result_time = $result_list->[0]->{time};
-     my ($now, $usecs) = gettimeofday();
      if ($result_time > $now) {
         $result_time = $now;
      }
