@@ -2,6 +2,7 @@ Revision history for Perl module NRD::Daemon
 
 ????
     - Added TEST in packet header for testing connectivity without raising errors
+    - Added option to save to resultdir with long filename
 
 0.01 Fri Jul  3 18:49:18 2009
     - original version; created by ExtUtils::ModuleMaker 0.51
